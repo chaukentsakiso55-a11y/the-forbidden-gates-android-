@@ -21,14 +21,30 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Camera") TObjectPtr<USpringArmComponent> CameraBoom;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Camera") TObjectPtr<UCameraComponent> FollowCamera;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input") TObjectPtr<UInputMappingContext> DefaultMappingContext;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input") TObjectPtr<UInputAction> MoveAction;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input") TObjectPtr<UInputAction> LookAction;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input") TObjectPtr<UInputAction> JumpAction;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Camera")
+    TObjectPtr<USpringArmComponent> CameraBoom;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Camera")
+    TObjectPtr<UCameraComponent> FollowCamera;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> MoveAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> LookAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> JumpAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> PrimaryMagicAction;
 
 private:
     void Move(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
+    void CastPrimaryMagic();
 };
