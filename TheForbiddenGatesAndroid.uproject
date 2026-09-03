@@ -1,0 +1,22 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.8",
+  "Category": "Games",
+  "Description": "The Forbidden Gates - Android production project",
+  "Modules": [
+    {
+      "Name": "TheForbiddenGatesAndroid",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    { "Name": "EnhancedInput", "Enabled": true },
+    { "Name": "GameplayAbilities", "Enabled": true },
+    { "Name": "GameplayTags", "Enabled": true },
+    { "Name": "GameplayTasks", "Enabled": true },
+    { "Name": "Niagara", "Enabled": true },
+    { "Name": "CommonUI", "Enabled": true }
+  ],
+  "TargetPlatforms": ["Android"]
+}
