@@ -1,5 +1,6 @@
 #include "TFGCheckpointActor.h"
 #include "Components/BoxComponent.h"
+#include "Engine/GameInstance.h"
 #include "GameFramework/Pawn.h"
 #include "TFGProgressionSubsystem.h"
 

@@ -1,4 +1,5 @@
 #include "TFGGameMode.h"
+#include "Engine/GameInstance.h"
 #include "TFGPlayerCharacter.h"
 #include "TFGProgressionSubsystem.h"
 
