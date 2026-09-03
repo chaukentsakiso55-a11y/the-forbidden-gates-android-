@@ -1,8 +1,8 @@
 using UnrealBuildTool;
 
-public class TheForbiddenGatesAndroid : ModuleRules
+public class TheForbiddenGates : ModuleRules
 {
-    public TheForbiddenGatesAndroid(ReadOnlyTargetRules Target) : base(Target)
+    public TheForbiddenGates(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 

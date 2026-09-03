@@ -5,7 +5,7 @@
   "Description": "The Forbidden Gates - Android production project",
   "Modules": [
     {
-      "Name": "TheForbiddenGatesAndroid",
+      "Name": "TheForbiddenGates",
       "Type": "Runtime",
       "LoadingPhase": "Default"
     }

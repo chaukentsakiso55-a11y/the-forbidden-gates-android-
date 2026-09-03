@@ -8,6 +8,6 @@ public class TheForbiddenGatesAndroidTarget : TargetRules
         Type = TargetType.Game;
         DefaultBuildSettings = BuildSettingsVersion.V5;
         IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_8;
-        ExtraModuleNames.Add("TheForbiddenGatesAndroid");
+        ExtraModuleNames.Add("TheForbiddenGates");
     }
 }
