@@ -2,6 +2,10 @@ name: Build Android Shipping APK
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-android-shipping.yml'
 
 permissions:
   contents: read
@@ -54,7 +58,7 @@ jobs:
         shell: powershell
         run: |
           $uat = Join-Path $env:UE_ROOT 'Engine\Build\BatchFiles\RunUAT.bat'
-          $project = Join-Path $env:GITHUB_WORKSPACE 'TheForbiddenGatesAndroid.uproject'
+          $project = Join-Path $env:GITHUB_WORKING_DIRECTORY 'TheForbiddenGatesAndroid.uproject'
           $archive = Join-Path $env:GITHUB_WORKSPACE 'Artifacts\Android'
           New-Item -ItemType Directory -Force -Path $archive | Out-Null
 
