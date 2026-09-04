@@ -1,0 +1,89 @@
+name: Build Android Shipping APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Locate Unreal Engine
+        shell: powershell
+        run: |
+          $candidates = @(
+            $env:UE_ROOT,
+            'C:\Program Files\Epic Games\UE_5.8',
+            'D:\Epic Games\UE_5.8',
+            'D:\Program Files\Epic Games\UE_5.8'
+          ) | Where-Object { $_ }
+
+          $ueRoot = $null
+          foreach ($candidate in $candidates) {
+            if (Test-Path (Join-Path $candidate 'Engine\Build\BatchFiles\RunUAT.bat')) {
+              $ueRoot = $candidate
+              break
+            }
+          }
+
+          if (-not $ueRoot) {
+            throw 'Unreal Engine 5.8.x was not found. Set UE_ROOT on the self-hosted runner or install UE 5.8.x in a standard Epic Games location.'
+          }
+
+          "UE_ROOT=$ueRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Using Unreal Engine at $ueRoot"
+
+      - name: Verify Android toolchain
+        shell: powershell
+        run: |
+          if (-not $env:ANDROID_HOME -and -not $env:ANDROID_SDK_ROOT) {
+            throw 'Android SDK is not configured on this runner. Configure Unreal Android prerequisites first.'
+          }
+          if (-not $env:JAVA_HOME) {
+            Write-Warning 'JAVA_HOME is not set. Unreal may still use its bundled JDK, but Android packaging must have a valid JDK available.'
+          }
+
+      - name: Package Android Shipping APK
+        shell: powershell
+        run: |
+          $uat = Join-Path $env:UE_ROOT 'Engine\Build\BatchFiles\RunUAT.bat'
+          $project = Join-Path $env:GITHUB_WORKSPACE 'TheForbiddenGatesAndroid.uproject'
+          $archive = Join-Path $env:GITHUB_WORKSPACE 'Artifacts\Android'
+          New-Item -ItemType Directory -Force -Path $archive | Out-Null
+
+          & $uat BuildCookRun `
+            -project="$project" `
+            -noP4 `
+            -utf8output `
+            -platform=Android `
+            -clientconfig=Shipping `
+            -build `
+            -cook `
+            -stage `
+            -pak `
+            -package `
+            -archive `
+            -archivedirectory="$archive"
+
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $apk = Get-ChildItem -Path $archive -Filter '*.apk' -Recurse | Select-Object -First 1
+          if (-not $apk) { throw 'Android packaging completed but no APK was found in the archive.' }
+
+          Copy-Item $apk.FullName (Join-Path $archive 'The-Forbidden-Gates-Android-Shipping.apk') -Force
+          Write-Host "Packaged APK: $($apk.FullName)"
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: the-forbidden-gates-android-shipping-apk
+          path: Artifacts/Android/**
+          if-no-files-found: error
+          retention-days: 30
