@@ -19,6 +19,9 @@ public:
     ATFGPlayerCharacter();
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Interaction")
+    void TryInteract();
+
 protected:
     virtual void BeginPlay() override;
 
@@ -42,6 +45,12 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
     TObjectPtr<UInputAction> PrimaryMagicAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> InteractAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Interaction", meta=(ClampMin="100.0", ClampMax="1200.0"))
+    float InteractionDistance = 450.0f;
 
 private:
     void Move(const FInputActionValue& Value);
