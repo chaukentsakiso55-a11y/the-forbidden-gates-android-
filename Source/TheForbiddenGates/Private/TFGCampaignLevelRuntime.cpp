@@ -67,6 +67,19 @@ void ATFGCampaignLevelRuntime::InitializeCampaignLevel()
         State.bCompleted = false;
     }
 
+    if (LevelSpec.bMidpointLevel && State.bCompleted && Save->CurrentLevel == 50)
+    {
+        Save->CurrentLevel = 51;
+        Save->CurrentChapter = 6;
+        Progression->SaveCurrentGame();
+        const FString CurrentMap = UGameplayStatics::GetCurrentLevelName(this, true);
+        if (!CurrentMap.IsEmpty())
+        {
+            UGameplayStatics::OpenLevel(this, FName(*CurrentMap));
+        }
+        return;
+    }
+
     if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
     {
         ObjectiveWidget = CreateWidget<UTFGObjectiveWidget>(PlayerController, UTFGObjectiveWidget::StaticClass());
@@ -86,7 +99,7 @@ void ATFGCampaignLevelRuntime::BuildPrototypeWorld()
     const float EndX = StartX + (LevelSpec.Steps.Num() + 1) * StepSpacing;
 
     BuildRealmGeometry(EndX + 700.0f);
-    SpawnCheckpoint(FVector(180.0f, 0.0f, 100.0f), FName(*FString::Printf(TEXT("L%03d_Start"), LevelSpec.LevelNumber)));
+    SpawnCheckpoint(FVector(180.0f, 0.0f, 100.0f), FName(*FString::Printf(TEXT("L%02d_Start"), LevelSpec.LevelNumber)));
 
     for (int32 Index = 0; Index < LevelSpec.Steps.Num(); ++Index)
     {
@@ -96,7 +109,7 @@ void ATFGCampaignLevelRuntime::BuildPrototypeWorld()
         if (Index == FMath::Max(1, LevelSpec.Steps.Num() / 2))
         {
             SpawnCheckpoint(Location + FVector(250.0f, 0.0f, 10.0f),
-                FName(*FString::Printf(TEXT("L%03d_Mid"), LevelSpec.LevelNumber)));
+                FName(*FString::Printf(TEXT("L%02d_Mid"), LevelSpec.LevelNumber)));
         }
     }
 
@@ -169,10 +182,8 @@ void ATFGCampaignLevelRuntime::SpawnCampaignStep(const FTFGCampaignStep& Step, i
 
     if (Step.Kind == ETFGCampaignStepKind::Encounter)
     {
-        ATFGEncounterZone* Encounter = GetWorld()->SpawnActor<ATFGEncounterZone>(
-            ATFGEncounterZone::StaticClass(), Location, FRotator::ZeroRotator, Params);
+        ATFGEncounterZone* Encounter = GetWorld()->SpawnActor<ATFGEncounterZone>(ATFGEncounterZone::StaticClass(), Location, FRotator::ZeroRotator, Params);
         if (!Encounter) return;
-
         Encounter->QuestId = LevelSpec.QuestId;
         Encounter->RequiredQuestStage = StageIndex;
         Encounter->AdvanceQuestToStage = StageIndex + 1;
@@ -189,8 +200,7 @@ void ATFGCampaignLevelRuntime::SpawnCampaignStep(const FTFGCampaignStep& Step, i
     ATFGInteractableActor* Interaction = nullptr;
     if (Step.Kind == ETFGCampaignStepKind::Relic)
     {
-        ATFGRelicPickupActor* Relic = GetWorld()->SpawnActor<ATFGRelicPickupActor>(
-            ATFGRelicPickupActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
+        ATFGRelicPickupActor* Relic = GetWorld()->SpawnActor<ATFGRelicPickupActor>(ATFGRelicPickupActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
         if (Relic)
         {
             Relic->RelicId = Step.RelicId;
@@ -204,12 +214,11 @@ void ATFGCampaignLevelRuntime::SpawnCampaignStep(const FTFGCampaignStep& Step, i
     }
     else
     {
-        Interaction = GetWorld()->SpawnActor<ATFGInteractableActor>(
-            ATFGInteractableActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
+        Interaction = GetWorld()->SpawnActor<ATFGInteractableActor>(ATFGInteractableActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
     }
 
     if (!Interaction) return;
-    Interaction->InteractionId = FName(*FString::Printf(TEXT("L%03d_Step_%02d"), LevelSpec.LevelNumber, StageIndex));
+    Interaction->InteractionId = FName(*FString::Printf(TEXT("L%02d_Step_%02d"), LevelSpec.LevelNumber, StageIndex));
     Interaction->InteractionPrompt = Step.Prompt.IsEmpty() ? FText::FromString(TEXT("Interact")) : Step.Prompt;
     Interaction->SpeakerName = Step.Speaker;
     Interaction->StoryLine = Step.Dialogue;
@@ -225,8 +234,7 @@ void ATFGCampaignLevelRuntime::SpawnCheckpoint(const FVector& Location, FName Ch
     if (!GetWorld()) return;
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    if (ATFGCheckpointActor* Checkpoint = GetWorld()->SpawnActor<ATFGCheckpointActor>(
-        ATFGCheckpointActor::StaticClass(), Location, FRotator::ZeroRotator, Params))
+    if (ATFGCheckpointActor* Checkpoint = GetWorld()->SpawnActor<ATFGCheckpointActor>(ATFGCheckpointActor::StaticClass(), Location, FRotator::ZeroRotator, Params))
     {
         Checkpoint->ConfigureCheckpoint(CheckpointId, LevelSpec.MapId, true);
     }
@@ -244,18 +252,13 @@ void ATFGCampaignLevelRuntime::SpawnEndMarker(const FVector& Location)
 
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    ATFGLevelTransitionActor* Transition = GetWorld()->SpawnActor<ATFGLevelTransitionActor>(
-        ATFGLevelTransitionActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
+    ATFGLevelTransitionActor* Transition = GetWorld()->SpawnActor<ATFGLevelTransitionActor>(ATFGLevelTransitionActor::StaticClass(), Location, FRotator::ZeroRotator, Params);
     if (!Transition) return;
 
-    Transition->InteractionId = FName(*FString::Printf(TEXT("L%03d_End"), LevelSpec.LevelNumber));
-    Transition->InteractionPrompt = (LevelSpec.LevelNumber % 10 == 0)
-        ? FText::FromString(TEXT("Cross the restored Gate"))
-        : FText::FromString(TEXT("Continue to the next path"));
+    Transition->InteractionId = FName(*FString::Printf(TEXT("L%02d_End"), LevelSpec.LevelNumber));
+    Transition->InteractionPrompt = (LevelSpec.LevelNumber % 10 == 0) ? FText::FromString(TEXT("Cross the restored Gate")) : FText::FromString(TEXT("Continue to the next path"));
     Transition->SpeakerName = FText::FromString(TEXT("Kael"));
-    Transition->StoryLine = LevelSpec.bMidpointLevel
-        ? FText::FromString(TEXT("The mission has changed. Elyra walks beside me now, and the truth lies ahead."))
-        : FText::FromString(TEXT("The road ahead opens. There is no turning back now."));
+    Transition->StoryLine = LevelSpec.bMidpointLevel ? FText::FromString(TEXT("The mission has changed. Elyra walks beside me now, and the truth lies ahead.")) : FText::FromString(TEXT("The road ahead opens. There is no turning back now."));
     Transition->QuestId = LevelSpec.QuestId;
     Transition->RequiredQuestStage = LevelSpec.Steps.Num();
     Transition->AdvanceQuestToStage = LevelSpec.Steps.Num() + 1;
@@ -269,14 +272,7 @@ void ATFGCampaignLevelRuntime::SpawnEndingChoices(const FVector& Location)
 {
     if (!GetWorld()) return;
 
-    struct FEndingSeed
-    {
-        int32 Value;
-        const TCHAR* Id;
-        const TCHAR* Prompt;
-        const TCHAR* Line;
-    };
-
+    struct FEndingSeed { int32 Value; const TCHAR* Id; const TCHAR* Prompt; const TCHAR* Line; };
     static const FEndingSeed Endings[] =
     {
         {1, TEXT("Ending_Seal"), TEXT("Seal the Gates"), TEXT("We seal the network. Magic may fade, but the prison will hold.")},
@@ -290,8 +286,7 @@ void ATFGCampaignLevelRuntime::SpawnEndingChoices(const FVector& Location)
     for (int32 Index = 0; Index < 3; ++Index)
     {
         const FVector ChoiceLocation = Location + FVector(0.0f, (Index - 1) * 360.0f, 0.0f);
-        ATFGEndingChoiceActor* Choice = GetWorld()->SpawnActor<ATFGEndingChoiceActor>(
-            ATFGEndingChoiceActor::StaticClass(), ChoiceLocation, FRotator::ZeroRotator, Params);
+        ATFGEndingChoiceActor* Choice = GetWorld()->SpawnActor<ATFGEndingChoiceActor>(ATFGEndingChoiceActor::StaticClass(), ChoiceLocation, FRotator::ZeroRotator, Params);
         if (!Choice) continue;
 
         Choice->InteractionId = FName(*FString::Printf(TEXT("L100_Ending_%d"), Index + 1));
@@ -303,7 +298,7 @@ void ATFGCampaignLevelRuntime::SpawnEndingChoices(const FVector& Location)
         Choice->AdvanceQuestToStage = LevelSpec.Steps.Num() + 1;
         Choice->bCompleteQuest = true;
         Choice->bOneShot = true;
-        Choice->ChoiceId = TEXT("FinalGateFate");
+        Choice->ChoiceId = FName(TEXT("FinalGateFate"));
         Choice->ChoiceValue = Endings[Index].Value;
         Choice->EndingId = FName(Endings[Index].Id);
         Choice->RefreshPresentation();
@@ -330,29 +325,13 @@ void ATFGCampaignLevelRuntime::HandleQuestChanged(FName QuestId, int32 Stage)
 void ATFGCampaignLevelRuntime::ApplyObjectiveForStage(int32 Stage)
 {
     if (!ObjectiveWidget) return;
-
-    const FText MissionTitle = FText::FromString(FString::Printf(
-        TEXT("LEVEL %d — %s"), LevelSpec.LevelNumber, *LevelSpec.Title.ToString().ToUpper()));
+    const FText MissionTitle = FText::FromString(FString::Printf(TEXT("LEVEL %d — %s"), LevelSpec.LevelNumber, *LevelSpec.Title.ToString().ToUpper()));
 
     FText Objective;
-    if (LevelSpec.Steps.IsValidIndex(Stage))
-    {
-        Objective = LevelSpec.Steps[Stage].Objective;
-    }
-    else if (LevelSpec.bFinalLevel)
-    {
-        Objective = FText::FromString(TEXT("Choose the fate of the Forbidden Gates."));
-    }
-    else if (LevelSpec.bMidpointLevel)
-    {
-        Objective = FText::FromString(TEXT("Leave the Stormlands with Elyra and continue toward the truth."));
-    }
-    else
-    {
-        Objective = (LevelSpec.LevelNumber % 10 == 0)
-            ? FText::FromString(TEXT("Cross the realm Gate and continue the journey."))
-            : FText::FromString(TEXT("Reach the route into the next level."));
-    }
+    if (LevelSpec.Steps.IsValidIndex(Stage)) Objective = LevelSpec.Steps[Stage].Objective;
+    else if (LevelSpec.bFinalLevel) Objective = FText::FromString(TEXT("Choose the fate of the Forbidden Gates."));
+    else if (LevelSpec.bMidpointLevel) Objective = FText::FromString(TEXT("Leave the Stormlands with Elyra and continue toward the truth."));
+    else Objective = (LevelSpec.LevelNumber % 10 == 0) ? FText::FromString(TEXT("Cross the realm Gate and continue the journey.")) : FText::FromString(TEXT("Reach the route into the next level."));
 
     ObjectiveWidget->SetObjective(MissionTitle, Objective);
     ObjectiveWidget->SetObjectiveVisible(true);
@@ -374,11 +353,8 @@ void ATFGCampaignLevelRuntime::FinishFinale()
                 Save->CurrentLevel = 100;
                 Save->CurrentChapter = 10;
                 Save->bNewGamePlus = true;
-                Save->NarrativeChoices.Add(TEXT("CampaignComplete"), 1);
-                if (const int32* SavedEnding = Save->NarrativeChoices.Find(TEXT("FinalGateFate")))
-                {
-                    EndingValue = *SavedEnding;
-                }
+                Save->NarrativeChoices.Add(FName(TEXT("CampaignComplete")), 1);
+                if (const int32* SavedEnding = Save->NarrativeChoices.Find(FName(TEXT("FinalGateFate")))) EndingValue = *SavedEnding;
                 Progression->SaveCurrentGame();
             }
         }
