@@ -8,8 +8,10 @@ class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 class USpringArmComponent;
+class UTFGCombatHUDWidget;
 class UTFGMobileControlsWidget;
 struct FInputActionValue;
+struct FOnAttributeChangeData;
 
 UCLASS(Blueprintable)
 class THEFORBIDDENGATES_API ATFGPlayerCharacter : public ATFGCharacterBase
@@ -63,6 +65,12 @@ private:
     void MoveRightLegacy(float Value);
     void TurnLegacy(float Value);
     void LookUpLegacy(float Value);
+    void HandleHealthChanged(const FOnAttributeChangeData& ChangeData);
+    void HandleDefeat();
+    void RestartAfterDefeat();
 
+    UPROPERTY() TObjectPtr<UTFGCombatHUDWidget> CombatHUDWidget;
     UPROPERTY() TObjectPtr<UTFGMobileControlsWidget> MobileControlsWidget;
+    FTimerHandle RestartTimer;
+    bool bDefeatHandled = false;
 };
