@@ -21,7 +21,12 @@ bool ATFGRelicPickupActor::CanInteract_Implementation(APawn* Interactor) const
         {
             if (UTFGProgressionSubsystem* Progression = GameInstance->GetSubsystem<UTFGProgressionSubsystem>())
             {
-                if (Progression->HasRelic(RelicId)) return false;
+                const bool bAlreadyCollected = Progression->HasRelic(RelicId);
+                const bool bQuestLinkedRecovery = !QuestId.IsNone() && RequiredQuestStage >= 0;
+                if (bAlreadyCollected && !bQuestLinkedRecovery)
+                {
+                    return false;
+                }
             }
         }
     }
