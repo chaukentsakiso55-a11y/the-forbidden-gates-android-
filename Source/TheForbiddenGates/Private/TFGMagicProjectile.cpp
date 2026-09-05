@@ -2,10 +2,14 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
+#include "UObject/ConstructorHelpers.h"
 
 ATFGMagicProjectile::ATFGMagicProjectile()
 {
@@ -18,6 +22,24 @@ ATFGMagicProjectile::ATFGMagicProjectile()
     CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     CollisionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
     CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+    VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
+    VisualMesh->SetupAttachment(CollisionSphere);
+    VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    VisualMesh->SetRelativeScale3D(FVector(0.18f));
+
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+    if (SphereMesh.Succeeded())
+    {
+        VisualMesh->SetStaticMesh(SphereMesh.Object);
+    }
+
+    GlowLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("GlowLight"));
+    GlowLight->SetupAttachment(CollisionSphere);
+    GlowLight->SetIntensity(2200.0f);
+    GlowLight->SetAttenuationRadius(180.0f);
+    GlowLight->SetLightColor(FLinearColor(0.32f, 0.18f, 1.0f));
+    GlowLight->SetCastShadows(false);
 
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->InitialSpeed = 1800.0f;
