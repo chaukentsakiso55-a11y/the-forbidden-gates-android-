@@ -13,6 +13,7 @@
 #include "TFGLevelTwoPrototypeWorld.h"
 #include "TFGOpeningStorySubsystem.h"
 #include "TFGPlayerCharacter.h"
+#include "TFGProductionAtmosphere.h"
 #include "TFGProgressionSubsystem.h"
 #include "TFGSaveGame.h"
 
@@ -39,6 +40,8 @@ void ATFGGameMode::BeginPlay()
 
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    GetWorld()->SpawnActor<ATFGProductionAtmosphere>(ATFGProductionAtmosphere::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
 
     FName ExpectedMapId = NAME_None;
     const FVector DefaultSpawn(0.0f, 0.0f, 140.0f);
