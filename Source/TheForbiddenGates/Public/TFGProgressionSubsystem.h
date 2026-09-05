@@ -15,16 +15,23 @@ class THEFORBIDDENGATES_API UTFGProgressionSubsystem : public UGameInstanceSubsy
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
+
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Save") bool SaveCurrentGame();
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Save") bool LoadCurrentGame();
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Save") void StartNewGame(ETFGDifficulty Difficulty = ETFGDifficulty::Adventurer);
+
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") void SetCheckpoint(FName CheckpointId, FName MapId, const FTransform& PlayerTransform, bool bSaveImmediately = true);
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") void CompleteLevel(int32 LevelNumber, float CompletionTimeSeconds = 0.0f);
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") void UnlockGate(FName GateId);
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") void UnlockAbility(FName AbilityId);
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") void AddDisciplineMastery(FName DisciplineId, int32 Amount);
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Progression") bool CollectRelic(FName RelicId);
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Inventory") void AddItem(FName ItemId, int32 Quantity = 1);
+    UFUNCTION(BlueprintPure, Category="Forbidden Gates|Progression") bool HasRelic(FName RelicId) const;
+
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Story") void SetNarrativeChoice(FName ChoiceId, int32 Value);
     UFUNCTION(BlueprintPure, Category="Forbidden Gates|Save") UTFGSaveGame* GetCurrentSave() const { return CurrentSave; }
+
     UPROPERTY(BlueprintAssignable) FTFGSaveLoaded OnSaveLoaded;
 
 private:
