@@ -21,6 +21,7 @@ private:
     UFUNCTION() void HandleMagicPressed();
     UFUNCTION() void HandleInteractPressed();
     UFUNCTION() void HandleJumpPressed();
+    UFUNCTION() void HandleDodgePressed();
 
     TWeakObjectPtr<ATFGPlayerCharacter> PlayerCharacter;
 };
