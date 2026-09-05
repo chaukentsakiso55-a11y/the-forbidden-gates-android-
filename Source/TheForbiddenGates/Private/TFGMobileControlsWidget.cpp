@@ -46,10 +46,12 @@ void UTFGMobileControlsWidget::NativeConstruct()
     UButton* MagicButton = AddMobileButton(WidgetTree, Root, TEXT("MagicButton"), TEXT("MAGIC"), FVector2D(-40.0f, -110.0f), FVector2D(120.0f, 72.0f));
     UButton* InteractButton = AddMobileButton(WidgetTree, Root, TEXT("InteractButton"), TEXT("INTERACT"), FVector2D(-180.0f, -55.0f), FVector2D(130.0f, 68.0f));
     UButton* JumpButton = AddMobileButton(WidgetTree, Root, TEXT("JumpButton"), TEXT("JUMP"), FVector2D(-40.0f, -205.0f), FVector2D(110.0f, 68.0f));
+    UButton* DodgeButton = AddMobileButton(WidgetTree, Root, TEXT("DodgeButton"), TEXT("DODGE"), FVector2D(-175.0f, -155.0f), FVector2D(120.0f, 68.0f));
 
     if (MagicButton) MagicButton->OnClicked.AddDynamic(this, &UTFGMobileControlsWidget::HandleMagicPressed);
     if (InteractButton) InteractButton->OnClicked.AddDynamic(this, &UTFGMobileControlsWidget::HandleInteractPressed);
     if (JumpButton) JumpButton->OnClicked.AddDynamic(this, &UTFGMobileControlsWidget::HandleJumpPressed);
+    if (DodgeButton) DodgeButton->OnClicked.AddDynamic(this, &UTFGMobileControlsWidget::HandleDodgePressed);
 }
 
 void UTFGMobileControlsWidget::HandleMagicPressed()
@@ -73,5 +75,13 @@ void UTFGMobileControlsWidget::HandleJumpPressed()
     if (ATFGPlayerCharacter* Player = PlayerCharacter.Get())
     {
         Player->Jump();
+    }
+}
+
+void UTFGMobileControlsWidget::HandleDodgePressed()
+{
+    if (ATFGPlayerCharacter* Player = PlayerCharacter.Get())
+    {
+        Player->Dodge();
     }
 }
