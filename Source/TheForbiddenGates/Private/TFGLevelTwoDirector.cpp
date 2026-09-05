@@ -75,31 +75,31 @@ void ATFGLevelTwoDirector::ApplyObjectiveForStage(int32 Stage)
 {
     if (!ObjectiveWidget) return;
 
-    const FText MissionTitle = FText::FromString(TEXT("LEVEL 2 — BEYOND ELARIS"));
+    const FText MissionTitle = FText::FromString(TEXT("LEVEL 2 — THE SKY TURNS RED"));
     FText Objective;
 
     switch (Stage)
     {
         case 0:
-            Objective = FText::FromString(TEXT("Follow the old road beyond the Gate."));
+            Objective = FText::FromString(TEXT("Follow the warning bells back toward the festival district."));
             break;
         case 1:
-            Objective = FText::FromString(TEXT("Inspect the abandoned caravan."));
+            Objective = FText::FromString(TEXT("Guide civilians toward the protected sanctuary route."));
             break;
         case 2:
-            Objective = FText::FromString(TEXT("Defeat the Dominion scouts blocking the road."));
+            Objective = FText::FromString(TEXT("Defeat the first Veyr soldiers inside the city."));
             break;
         case 3:
-            Objective = FText::FromString(TEXT("Examine the glowing rune stone."));
+            Objective = FText::FromString(TEXT("Reach the southern district and help the trapped families."));
             break;
         case 4:
-            Objective = FText::FromString(TEXT("Follow the rune trail into the broken ruins."));
+            Objective = FText::FromString(TEXT("Break through the Veyr blockade guarding the safe district."));
             break;
         case 5:
-            Objective = FText::FromString(TEXT("Reach the shattered shrine and survive the ambush."));
+            Objective = FText::FromString(TEXT("Get the survivors through the protected district gate."));
             break;
         default:
-            Objective = FText::FromString(TEXT("The path deeper into the Outer Realms is now open."));
+            Objective = FText::FromString(TEXT("The survivors are safe. The palace is under attack."));
             break;
     }
 
@@ -124,7 +124,7 @@ void ATFGLevelTwoDirector::FinishMission()
     if (ObjectiveWidget)
     {
         ObjectiveWidget->SetObjective(
-            FText::FromString(TEXT("LEVEL 2 ROUTE SECURED")),
-            FText::FromString(TEXT("The deeper road is sealed until the next realm is ready.")));
+            FText::FromString(TEXT("LEVEL 2 COMPLETE")),
+            FText::FromString(TEXT("The palace bells are still ringing. Kael turns toward the royal district.")));
     }
 }
