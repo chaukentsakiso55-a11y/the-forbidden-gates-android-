@@ -22,6 +22,8 @@ required = [
     "Source/TheForbiddenGates/Private/TFGCampaignEliteEnemy.cpp",
     "Source/TheForbiddenGates/Public/TFGLevelContentProfile.h",
     "Source/TheForbiddenGates/Private/TFGLevelContentProfile.cpp",
+    "Source/TheForbiddenGates/Public/TFGContentBlueprintLibrary.h",
+    "Source/TheForbiddenGates/Private/TFGContentBlueprintLibrary.cpp",
     "Source/TheForbiddenGates/Public/TFGEndingChoiceActor.h",
     "Source/TheForbiddenGates/Private/TFGEndingChoiceActor.cpp",
     "Config/DefaultGame.ini",
@@ -90,6 +92,19 @@ if content_profile.exists():
     ):
         if token not in content_text:
             errors.append(f"Production content profile is missing required token: {token}")
+
+profile_header = root / "Source/TheForbiddenGates/Public/TFGLevelContentProfile.h"
+if profile_header.exists():
+    profile_text = profile_header.read_text(encoding="utf-8")
+    for token in ("USTRUCT(BlueprintType)", "EnvironmentTheme", "MusicState", "IntroCinematicId", "BossId"):
+        if token not in profile_text:
+            errors.append(f"Blueprint content profile is missing required token: {token}")
+
+blueprint_library = root / "Source/TheForbiddenGates/Public/TFGContentBlueprintLibrary.h"
+if blueprint_library.exists():
+    library_text = blueprint_library.read_text(encoding="utf-8")
+    if "GetLevelContentProfile" not in library_text or "BlueprintPure" not in library_text:
+        errors.append("Production content catalog must be accessible from Blueprints")
 
 boss = root / "Source/TheForbiddenGates/Private/TFGCampaignEliteEnemy.cpp"
 if boss.exists():
