@@ -42,6 +42,8 @@ void ATFGCharacterBase::BeginPlay()
     AbilitySystem->SetNumericAttributeBase(UTFGAttributeSet::GetManaAttribute(), StartingMana);
     AbilitySystem->SetNumericAttributeBase(UTFGAttributeSet::GetMaxStaminaAttribute(), StartingStamina);
     AbilitySystem->SetNumericAttributeBase(UTFGAttributeSet::GetStaminaAttribute(), StartingStamina);
+    AbilitySystem->SetNumericAttributeBase(UTFGAttributeSet::GetMagicPowerAttribute(), StartingMagicPower);
+    AbilitySystem->SetNumericAttributeBase(UTFGAttributeSet::GetArmorAttribute(), StartingArmor);
 
     const bool bHasFinalMesh = GetMesh() && GetMesh()->GetSkeletalMeshAsset() != nullptr;
     if (PlaceholderBody)
