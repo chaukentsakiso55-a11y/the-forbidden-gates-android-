@@ -4,8 +4,10 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "UObject/ConstructorHelpers.h"
+#include "TFGCheckpointActor.h"
 #include "TFGEncounterZone.h"
 #include "TFGEnemyCharacter.h"
+#include "TFGGateTransitionActor.h"
 #include "TFGInteractableActor.h"
 
 ATFGLevelOnePrototypeWorld::ATFGLevelOnePrototypeWorld()
@@ -49,6 +51,19 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
     AddBox(FVector(4450.0f, 260.0f, 300.0f), FVector(1.2f, 1.2f, 6.0f));
     AddBox(FVector(4450.0f, 0.0f, 610.0f), FVector(1.2f, 4.0f, 1.0f));
 
+    auto SpawnCheckpoint = [this](const FVector& Location, FName CheckpointId)
+    {
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        if (ATFGCheckpointActor* Checkpoint = GetWorld()->SpawnActor<ATFGCheckpointActor>(
+            ATFGCheckpointActor::StaticClass(), Location, FRotator::ZeroRotator, Params))
+        {
+            Checkpoint->ConfigureCheckpoint(CheckpointId, TEXT("L01_MorningInElaris"), true);
+        }
+    };
+
+    SpawnCheckpoint(FVector(250.0f, 0.0f, 90.0f), TEXT("L01_Start"));
+
     ATFGInteractableActor* Captain = SpawnInteraction(
         FVector(520.0f, 0.0f, 70.0f),
         FText::FromString(TEXT("Speak to Captain Arlen")),
@@ -70,6 +85,8 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         Mira->SpeakerName = FText::FromString(TEXT("Mira"));
         Mira->StoryLine = FText::FromString(TEXT("Something feels wrong. The birds fled north before sunrise."));
     }
+
+    SpawnCheckpoint(FVector(2050.0f, 0.0f, 90.0f), TEXT("L01_Market"));
 
     ATFGInteractableActor* Watchtower = SpawnInteraction(
         FVector(2350.0f, 0.0f, 110.0f),
@@ -93,14 +110,25 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         Palace->StoryLine = FText::FromString(TEXT("The royal chambers are broken open. Princess Elyra is gone."));
     }
 
-    ATFGInteractableActor* Gate = SpawnInteraction(
-        FVector(4300.0f, 0.0f, 100.0f),
-        FText::FromString(TEXT("Approach the Forbidden Gate")),
-        TEXT("FirstForbiddenGate"), 6, 7);
+    SpawnCheckpoint(FVector(3850.0f, 0.0f, 90.0f), TEXT("L01_Palace"));
+
+    FActorSpawnParameters GateParams;
+    GateParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ATFGGateTransitionActor* Gate = GetWorld()->SpawnActor<ATFGGateTransitionActor>(
+        ATFGGateTransitionActor::StaticClass(), FVector(4300.0f, 0.0f, 100.0f), FRotator::ZeroRotator, GateParams);
     if (Gate)
     {
+        Gate->InteractionId = TEXT("FirstForbiddenGate");
+        Gate->InteractionPrompt = FText::FromString(TEXT("Enter the Forbidden Gate"));
+        Gate->QuestId = QuestId;
+        Gate->RequiredQuestStage = 6;
+        Gate->AdvanceQuestToStage = 7;
+        Gate->bOneShot = true;
+        Gate->GateId = TEXT("Gate_Elaris_First");
+        Gate->LevelToComplete = 1;
         Gate->SpeakerName = FText::FromString(TEXT("The Gate"));
-        Gate->StoryLine = FText::FromString(TEXT("The ancient stone answers your presence. The road beyond Elaris opens."));
+        Gate->StoryLine = FText::FromString(TEXT("The ancient stone answers your presence. Beyond this threshold, the kingdom ends."));
+        Gate->RefreshPresentation();
     }
 }
 
