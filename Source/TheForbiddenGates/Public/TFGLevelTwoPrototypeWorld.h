@@ -24,10 +24,10 @@ private:
     void AddBox(const FVector& Location, const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator);
     ATFGInteractableActor* SpawnInteraction(const FVector& Location, const FText& Prompt, FName InteractionId,
         int32 RequiredStage, int32 AdvanceStage, const FText& Speaker, const FText& StoryLine);
-    ATFGEncounterZone* SpawnEncounter(const FVector& Location, int32 RequiredStage, int32 AdvanceStage, int32 EnemyCount);
+    ATFGEncounterZone* SpawnEncounter(const FVector& Location, int32 RequiredStage, int32 AdvanceStage, int32 EnemyCount, bool bIncludeBrute = false);
     void SpawnCheckpoint(const FVector& Location, FName CheckpointId);
 
     UPROPERTY() TObjectPtr<USceneComponent> SceneRoot;
     UPROPERTY() TObjectPtr<UInstancedStaticMeshComponent> Geometry;
-    FName QuestId = TEXT("L02_BeyondElaris");
+    FName QuestId = TEXT("L02_TheSkyTurnsRed");
 };
