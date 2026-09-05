@@ -1,6 +1,7 @@
 #include "TFGRelicPickupActor.h"
 
 #include "Engine/GameInstance.h"
+#include "TFGPlayerCharacter.h"
 #include "TFGProgressionSubsystem.h"
 
 ATFGRelicPickupActor::ATFGRelicPickupActor()
@@ -41,6 +42,11 @@ void ATFGRelicPickupActor::Interact_Implementation(APawn* Interactor)
             if (!DisciplineId.IsNone() && MasteryAmount > 0) Progression->AddDisciplineMastery(DisciplineId, MasteryAmount);
             if (!AbilityUnlockId.IsNone()) Progression->UnlockAbility(AbilityUnlockId);
         }
+    }
+
+    if (ATFGPlayerCharacter* Player = Cast<ATFGPlayerCharacter>(Interactor))
+    {
+        Player->RefreshUnlockedAbilities();
     }
 
     Super::Interact_Implementation(Interactor);
