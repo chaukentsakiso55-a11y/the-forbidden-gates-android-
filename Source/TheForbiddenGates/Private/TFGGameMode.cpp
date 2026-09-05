@@ -3,6 +3,8 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "TFGCampaignCatalog.h"
+#include "TFGCampaignLevelRuntime.h"
 #include "TFGLevelOneDirector.h"
 #include "TFGLevelOnePrototypeWorld.h"
 #include "TFGLevelThreeDirector.h"
@@ -58,6 +60,15 @@ void ATFGGameMode::BeginPlay()
         ExpectedMapId = TEXT("L03_PalaceUnderSiege");
         GetWorld()->SpawnActor<ATFGLevelThreeDirector>(ATFGLevelThreeDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
         GetWorld()->SpawnActor<ATFGLevelThreePrototypeWorld>(ATFGLevelThreePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    }
+    else if (FTFGCampaignCatalog::IsRuntimeLevel(Save->CurrentLevel))
+    {
+        FTFGCampaignLevelSpec Spec;
+        if (FTFGCampaignCatalog::GetLevelSpec(Save->CurrentLevel, Spec))
+        {
+            ExpectedMapId = Spec.MapId;
+            GetWorld()->SpawnActor<ATFGCampaignLevelRuntime>(ATFGCampaignLevelRuntime::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+        }
     }
 
     if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
