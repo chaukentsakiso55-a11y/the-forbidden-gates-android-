@@ -13,7 +13,7 @@ public:
     virtual void Interact_Implementation(APawn* Interactor) override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Forbidden Gates|Ending")
-    FName ChoiceId = TEXT("FinalGateFate");
+    FName ChoiceId = FName(TEXT("FinalGateFate"));
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Forbidden Gates|Ending")
     int32 ChoiceValue = 0;
