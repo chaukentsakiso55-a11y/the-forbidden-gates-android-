@@ -32,8 +32,9 @@ private:
     void SpawnCampaignStep(const FTFGCampaignStep& Step, int32 StageIndex, const FVector& Location);
     void SpawnCheckpoint(const FVector& Location, FName CheckpointId);
     void SpawnEndMarker(const FVector& Location);
+    void SpawnEndingChoices(const FVector& Location);
     void ApplyObjectiveForStage(int32 Stage);
-    void FinishMidpoint();
+    void FinishFinale();
     void AddBox(const FVector& Location, const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator);
 
     UPROPERTY() TObjectPtr<USceneComponent> SceneRoot;
@@ -43,5 +44,5 @@ private:
     TWeakObjectPtr<UTFGQuestComponent> QuestComponent;
     FTFGCampaignLevelSpec LevelSpec;
     bool bInitialized = false;
-    bool bMidpointFinished = false;
+    bool bFinaleFinished = false;
 };
