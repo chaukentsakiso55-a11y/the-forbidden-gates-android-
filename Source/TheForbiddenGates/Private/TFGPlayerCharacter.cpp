@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include "TFGArcaneBoltAbility.h"
 #include "TFGInteractable.h"
+#include "TFGMobileControlsWidget.h"
 
 ATFGPlayerCharacter::ATFGPlayerCharacter()
 {
@@ -52,6 +53,15 @@ void ATFGPlayerCharacter::BeginPlay()
                 }
             }
         }
+
+#if PLATFORM_ANDROID
+        MobileControlsWidget = CreateWidget<UTFGMobileControlsWidget>(PlayerController, UTFGMobileControlsWidget::StaticClass());
+        if (MobileControlsWidget)
+        {
+            MobileControlsWidget->SetPlayerCharacter(this);
+            MobileControlsWidget->AddToViewport(30);
+        }
+#endif
     }
 }
 
@@ -72,6 +82,30 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
             EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
         }
     }
+
+    if (!MoveAction)
+    {
+        PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATFGPlayerCharacter::MoveForwardLegacy);
+        PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ATFGPlayerCharacter::MoveRightLegacy);
+    }
+    if (!LookAction)
+    {
+        PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATFGPlayerCharacter::TurnLegacy);
+        PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ATFGPlayerCharacter::LookUpLegacy);
+    }
+    if (!JumpAction)
+    {
+        PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+        PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
+    }
+    if (!PrimaryMagicAction)
+    {
+        PlayerInputComponent->BindAction(TEXT("PrimaryMagic"), IE_Pressed, this, &ATFGPlayerCharacter::CastPrimaryMagic);
+    }
+    if (!InteractAction)
+    {
+        PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &ATFGPlayerCharacter::TryInteract);
+    }
 }
 
 void ATFGPlayerCharacter::Move(const FInputActionValue& Value)
@@ -89,6 +123,30 @@ void ATFGPlayerCharacter::Look(const FInputActionValue& Value)
     const FVector2D LookAxis = Value.Get<FVector2D>();
     AddControllerYawInput(LookAxis.X);
     AddControllerPitchInput(LookAxis.Y);
+}
+
+void ATFGPlayerCharacter::MoveForwardLegacy(float Value)
+{
+    if (!Controller || FMath::IsNearlyZero(Value)) return;
+    const FRotator Rotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+    AddMovementInput(FRotationMatrix(Rotation).GetUnitAxis(EAxis::X), Value);
+}
+
+void ATFGPlayerCharacter::MoveRightLegacy(float Value)
+{
+    if (!Controller || FMath::IsNearlyZero(Value)) return;
+    const FRotator Rotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+    AddMovementInput(FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y), Value);
+}
+
+void ATFGPlayerCharacter::TurnLegacy(float Value)
+{
+    AddControllerYawInput(Value);
+}
+
+void ATFGPlayerCharacter::LookUpLegacy(float Value)
+{
+    AddControllerPitchInput(Value);
 }
 
 void ATFGPlayerCharacter::CastPrimaryMagic()
