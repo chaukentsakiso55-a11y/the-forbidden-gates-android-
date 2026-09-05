@@ -11,6 +11,7 @@
 #include "GameplayTagContainer.h"
 #include "InputActionValue.h"
 #include "TFGArcaneBoltAbility.h"
+#include "TFGInteractable.h"
 
 ATFGPlayerCharacter::ATFGPlayerCharacter()
 {
@@ -63,6 +64,7 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
         if (MoveAction) EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATFGPlayerCharacter::Move);
         if (LookAction) EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATFGPlayerCharacter::Look);
         if (PrimaryMagicAction) EnhancedInput->BindAction(PrimaryMagicAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::CastPrimaryMagic);
+        if (InteractAction) EnhancedInput->BindAction(InteractAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::TryInteract);
 
         if (JumpAction)
         {
@@ -96,5 +98,25 @@ void ATFGPlayerCharacter::CastPrimaryMagic()
         FGameplayTagContainer AbilityTags;
         AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Magic.Primary")));
         AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+    }
+}
+
+void ATFGPlayerCharacter::TryInteract()
+{
+    if (!FollowCamera || !GetWorld()) return;
+
+    const FVector Start = FollowCamera->GetComponentLocation();
+    const FVector End = Start + FollowCamera->GetForwardVector() * InteractionDistance;
+
+    FHitResult Hit;
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(TFGInteractionTrace), false, this);
+    if (!GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, QueryParams)) return;
+
+    AActor* HitActor = Hit.GetActor();
+    if (!HitActor || !HitActor->GetClass()->ImplementsInterface(UTFGInteractable::StaticClass())) return;
+
+    if (ITFGInteractable::Execute_CanInteract(HitActor, this))
+    {
+        ITFGInteractable::Execute_Interact(HitActor, this);
     }
 }
