@@ -24,6 +24,8 @@ required = [
     "Source/TheForbiddenGates/Private/TFGLevelContentProfile.cpp",
     "Source/TheForbiddenGates/Public/TFGContentBlueprintLibrary.h",
     "Source/TheForbiddenGates/Private/TFGContentBlueprintLibrary.cpp",
+    "Source/TheForbiddenGates/Public/TFGProductionAtmosphere.h",
+    "Source/TheForbiddenGates/Private/TFGProductionAtmosphere.cpp",
     "Source/TheForbiddenGates/Public/TFGEndingChoiceActor.h",
     "Source/TheForbiddenGates/Private/TFGEndingChoiceActor.cpp",
     "Config/DefaultGame.ini",
@@ -80,6 +82,8 @@ if mode.exists():
     mode_text = mode.read_text(encoding="utf-8")
     if "FTFGCampaignCatalog::IsRuntimeLevel" not in mode_text or "ATFGCampaignLevelRuntime" not in mode_text:
         errors.append("GameMode must route runtime campaign levels through ATFGCampaignLevelRuntime")
+    if "ATFGProductionAtmosphere" not in mode_text:
+        errors.append("GameMode must spawn the production atmosphere director")
 
 content_profile = root / "Source/TheForbiddenGates/Private/TFGLevelContentProfile.cpp"
 if content_profile.exists():
@@ -105,6 +109,13 @@ if blueprint_library.exists():
     library_text = blueprint_library.read_text(encoding="utf-8")
     if "GetLevelContentProfile" not in library_text or "BlueprintPure" not in library_text:
         errors.append("Production content catalog must be accessible from Blueprints")
+
+atmosphere = root / "Source/TheForbiddenGates/Private/TFGProductionAtmosphere.cpp"
+if atmosphere.exists():
+    atmosphere_text = atmosphere.read_text(encoding="utf-8")
+    for token in ("UDirectionalLightComponent", "UExponentialHeightFogComponent", "Profile.ChapterNumber", "Profile.bHeroLevel"):
+        if token not in atmosphere_text:
+            errors.append(f"Production atmosphere is missing required token: {token}")
 
 boss = root / "Source/TheForbiddenGates/Private/TFGCampaignEliteEnemy.cpp"
 if boss.exists():
