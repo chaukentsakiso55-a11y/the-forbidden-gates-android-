@@ -3,6 +3,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "TFGLevelOneDirector.h"
+#include "TFGLevelOnePrototypeWorld.h"
 #include "TFGOpeningStorySubsystem.h"
 #include "TFGPlayerCharacter.h"
 #include "TFGProgressionSubsystem.h"
@@ -31,7 +32,10 @@ void ATFGGameMode::BeginPlay()
         {
             if (Save->CurrentLevel == 1 && !Save->CompletedLevels.Contains(1) && GetWorld())
             {
-                GetWorld()->SpawnActor<ATFGLevelOneDirector>(ATFGLevelOneDirector::StaticClass(), FTransform::Identity);
+                FActorSpawnParameters Params;
+                Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+                GetWorld()->SpawnActor<ATFGLevelOneDirector>(ATFGLevelOneDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+                GetWorld()->SpawnActor<ATFGLevelOnePrototypeWorld>(ATFGLevelOnePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
             }
         }
     }
