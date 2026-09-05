@@ -20,12 +20,15 @@ required = [
     "Source/TheForbiddenGates/Private/TFGCampaignLevelRuntime.cpp",
     "Source/TheForbiddenGates/Public/TFGCampaignEliteEnemy.h",
     "Source/TheForbiddenGates/Private/TFGCampaignEliteEnemy.cpp",
+    "Source/TheForbiddenGates/Public/TFGLevelContentProfile.h",
+    "Source/TheForbiddenGates/Private/TFGLevelContentProfile.cpp",
     "Source/TheForbiddenGates/Public/TFGEndingChoiceActor.h",
     "Source/TheForbiddenGates/Private/TFGEndingChoiceActor.cpp",
     "Config/DefaultGame.ini",
     "Config/DefaultDeviceProfiles.ini",
     "Config/DefaultGameplayTags.ini",
     "Docs/SHARED_GAMEPLAY_CONTRACT.md",
+    "Docs/CONTENT_PRODUCTION_PIPELINE.md",
 ]
 
 for relative in required:
@@ -76,6 +79,25 @@ if mode.exists():
     if "FTFGCampaignCatalog::IsRuntimeLevel" not in mode_text or "ATFGCampaignLevelRuntime" not in mode_text:
         errors.append("GameMode must route runtime campaign levels through ATFGCampaignLevelRuntime")
 
+content_profile = root / "Source/TheForbiddenGates/Private/TFGLevelContentProfile.cpp"
+if content_profile.exists():
+    content_text = content_profile.read_text(encoding="utf-8")
+    for token in (
+        "Elaris_FallenRoyal", "WhisperingWilds_Bioluminescent", "EmberKingdom_VolcanicForge",
+        "SunkenRealm_DrownedAetherian", "Stormlands_FloatingCitadels", "BrokenKingdom_FracturedVeyr",
+        "ShadowRealm_UmbralRuins", "AncientWorld_AetherianMachineGarden", "LastGate_WarCrossroads",
+        "HeartGate_ElarisTransformed", "CIN_FinalChoice", "FirstHollow"
+    ):
+        if token not in content_text:
+            errors.append(f"Production content profile is missing required token: {token}")
+
+boss = root / "Source/TheForbiddenGates/Private/TFGCampaignEliteEnemy.cpp"
+if boss.exists():
+    boss_text = boss.read_text(encoding="utf-8")
+    for token in ("DominionCommander", "GuardianOfRoots", "Seraphon", "DrownedKing", "VaelTheFallen", "FirstHollow", "UpdateBossPhase"):
+        if token not in boss_text:
+            errors.append(f"Named boss production layer is missing required token: {token}")
+
 for banned in ("Binaries", "DerivedDataCache", "Intermediate", "Saved"):
     if (root / banned).exists():
         errors.append(f"Generated Unreal directory should not be tracked: {banned}")
@@ -86,4 +108,4 @@ if errors:
         print(f" - {error}")
     sys.exit(1)
 
-print("The Forbidden Gates Android repository validation passed through campaign level 100.")
+print("The Forbidden Gates Android repository validation passed through campaign level 100 and production content phase 1.")
