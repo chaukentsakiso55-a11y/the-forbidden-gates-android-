@@ -2,6 +2,7 @@
 
 #include "Components/PointLightComponent.h"
 #include "Engine/GameInstance.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "TFGProgressionSubsystem.h"
@@ -33,7 +34,7 @@ void ATFGGateTransitionActor::BeginPlay()
 
 void ATFGGateTransitionActor::Interact_Implementation(APawn* Interactor)
 {
-    if (bActivating || !ITFGInteractable::Execute_CanInteract(this, Interactor)) return;
+    if (bActivating || !CanInteract_Implementation(Interactor)) return;
 
     Super::Interact_Implementation(Interactor);
 
