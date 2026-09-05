@@ -36,11 +36,12 @@ struct FTFGCampaignLevelSpec
     FName RealmId = NAME_None;
     TArray<FTFGCampaignStep> Steps;
     bool bMidpointLevel = false;
+    bool bFinalLevel = false;
 };
 
 class THEFORBIDDENGATES_API FTFGCampaignCatalog
 {
 public:
     static bool GetLevelSpec(int32 LevelNumber, FTFGCampaignLevelSpec& OutSpec);
-    static bool IsRuntimeLevel(int32 LevelNumber) { return LevelNumber >= 4 && LevelNumber <= 50; }
+    static bool IsRuntimeLevel(int32 LevelNumber) { return LevelNumber >= 4 && LevelNumber <= 100; }
 };
