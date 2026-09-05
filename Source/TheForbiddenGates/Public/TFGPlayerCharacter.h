@@ -28,6 +28,12 @@ public:
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Magic")
     void CastPrimaryMagic();
 
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Magic")
+    void CastSecondaryMagic();
+
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Abilities")
+    void RefreshUnlockedAbilities();
+
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Movement")
     void Dodge();
 
@@ -54,6 +60,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
     TObjectPtr<UInputAction> PrimaryMagicAction;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
+    TObjectPtr<UInputAction> SecondaryMagicAction;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Input")
     TObjectPtr<UInputAction> InteractAction;
