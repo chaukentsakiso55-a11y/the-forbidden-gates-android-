@@ -35,11 +35,13 @@ namespace
             case 8: P.PuzzleArchetype = TEXT("AetherianGateResponse"); break;
             case 10: P.BossId = TEXT("DominionCommander"); P.OutroCinematicId = TEXT("CIN_FirstGateOpens"); P.bHeroLevel = true; break;
             case 18: P.PuzzleArchetype = TEXT("ShiftingThornMaze"); break;
-            case 20: P.BossId = TEXT("GuardianOfRoots"); P.OutroCinematicId = TEXT("CIN_VerdantSeal"); P.bHeroLevel = true; break;
+            case 19: P.BossId = TEXT("GuardianOfRoots"); P.IntroCinematicId = TEXT("CIN_GuardianOfRoots"); P.bHeroLevel = true; break;
+            case 20: P.OutroCinematicId = TEXT("CIN_VerdantSeal"); P.bHeroLevel = true; break;
             case 24: P.PuzzleArchetype = TEXT("BurningGlassReflections"); break;
             case 29: P.BossId = TEXT("Seraphon"); P.IntroCinematicId = TEXT("CIN_SeraphonArena"); P.bHeroLevel = true; break;
             case 35: P.PuzzleArchetype = TEXT("CelestialObservatoryAlignment"); break;
-            case 40: P.BossId = TEXT("DrownedKing"); P.OutroCinematicId = TEXT("CIN_OceanGateRestored"); P.bHeroLevel = true; break;
+            case 39: P.BossId = TEXT("DrownedKing"); P.IntroCinematicId = TEXT("CIN_DrownedKing"); P.bHeroLevel = true; break;
+            case 40: P.OutroCinematicId = TEXT("CIN_OceanGateRestored"); P.bHeroLevel = true; break;
             case 44: P.PuzzleArchetype = TEXT("FallingArchiveTraversal"); break;
             case 50: P.IntroCinematicId = TEXT("CIN_Elyra_Reunion"); P.OutroCinematicId = TEXT("CIN_IWasntKidnapped"); P.bHeroLevel = true; break;
             case 58: P.PuzzleArchetype = TEXT("UnstablePortalFractures"); break;
