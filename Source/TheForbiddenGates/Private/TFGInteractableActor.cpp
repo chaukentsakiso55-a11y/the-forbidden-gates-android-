@@ -1,10 +1,13 @@
 #include "TFGInteractableActor.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
+#include "GameFramework/PlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "TFGCharacterBase.h"
+#include "TFGDialogueWidget.h"
 #include "TFGQuestComponent.h"
 
 ATFGInteractableActor::ATFGInteractableActor()
@@ -57,6 +60,8 @@ void ATFGInteractableActor::Interact_Implementation(APawn* Interactor)
 {
     if (!CanInteract_Implementation(Interactor)) return;
 
+    ShowStoryLine(Interactor);
+
     ATFGCharacterBase* Character = Cast<ATFGCharacterBase>(Interactor);
     if (Character && Character->GetQuestComponent() && !QuestId.IsNone())
     {
@@ -88,4 +93,21 @@ void ATFGInteractableActor::RefreshPresentation()
     {
         PromptLabel->SetText(InteractionPrompt);
     }
+}
+
+void ATFGInteractableActor::ShowStoryLine(APawn* Interactor)
+{
+    if (!Interactor || StoryLine.ToString().IsEmpty()) return;
+
+    APlayerController* PlayerController = Cast<APlayerController>(Interactor->GetController());
+    if (!PlayerController) return;
+
+    UTFGDialogueWidget* DialogueWidget = CreateWidget<UTFGDialogueWidget>(PlayerController, UTFGDialogueWidget::StaticClass());
+    if (!DialogueWidget) return;
+
+    DialogueWidget->AddToViewport(40);
+    const FText Speaker = SpeakerName.ToString().IsEmpty()
+        ? FText::FromName(InteractionId)
+        : SpeakerName;
+    DialogueWidget->ShowDialogue(Speaker, StoryLine, 4.5f);
 }
