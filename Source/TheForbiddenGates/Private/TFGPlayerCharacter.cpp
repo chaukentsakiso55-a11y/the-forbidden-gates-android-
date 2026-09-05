@@ -10,7 +10,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTagContainer.h"
 #include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 #include "TFGArcaneBoltAbility.h"
+#include "TFGAttributeSet.h"
+#include "TFGCombatHUDWidget.h"
 #include "TFGInteractable.h"
 #include "TFGMobileControlsWidget.h"
 
@@ -41,6 +45,12 @@ void ATFGPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+    {
+        ASC->GetGameplayAttributeValueChangeDelegate(UTFGAttributeSet::GetHealthAttribute())
+            .AddUObject(this, &ATFGPlayerCharacter::HandleHealthChanged);
+    }
+
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
         if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
@@ -52,6 +62,13 @@ void ATFGPlayerCharacter::BeginPlay()
                     InputSubsystem->AddMappingContext(DefaultMappingContext, 0);
                 }
             }
+        }
+
+        CombatHUDWidget = CreateWidget<UTFGCombatHUDWidget>(PlayerController, UTFGCombatHUDWidget::StaticClass());
+        if (CombatHUDWidget)
+        {
+            CombatHUDWidget->SetPlayerCharacter(this);
+            CombatHUDWidget->AddToViewport(10);
         }
 
 #if PLATFORM_ANDROID
@@ -151,6 +168,8 @@ void ATFGPlayerCharacter::LookUpLegacy(float Value)
 
 void ATFGPlayerCharacter::CastPrimaryMagic()
 {
+    if (bDefeatHandled) return;
+
     if (UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponent())
     {
         FGameplayTagContainer AbilityTags;
@@ -161,7 +180,7 @@ void ATFGPlayerCharacter::CastPrimaryMagic()
 
 void ATFGPlayerCharacter::TryInteract()
 {
-    if (!FollowCamera || !GetWorld()) return;
+    if (bDefeatHandled || !FollowCamera || !GetWorld()) return;
 
     const FVector Start = FollowCamera->GetComponentLocation();
     const FVector End = Start + FollowCamera->GetForwardVector() * InteractionDistance;
@@ -176,5 +195,41 @@ void ATFGPlayerCharacter::TryInteract()
     if (ITFGInteractable::Execute_CanInteract(HitActor, this))
     {
         ITFGInteractable::Execute_Interact(HitActor, this);
+    }
+}
+
+void ATFGPlayerCharacter::HandleHealthChanged(const FOnAttributeChangeData& ChangeData)
+{
+    if (ChangeData.NewValue <= 0.0f)
+    {
+        HandleDefeat();
+    }
+}
+
+void ATFGPlayerCharacter::HandleDefeat()
+{
+    if (bDefeatHandled) return;
+    bDefeatHandled = true;
+
+    GetCharacterMovement()->DisableMovement();
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        DisableInput(PlayerController);
+    }
+
+    if (MobileControlsWidget)
+    {
+        MobileControlsWidget->SetVisibility(ESlateVisibility::Collapsed);
+    }
+
+    GetWorldTimerManager().SetTimer(RestartTimer, this, &ATFGPlayerCharacter::RestartAfterDefeat, 2.5f, false);
+}
+
+void ATFGPlayerCharacter::RestartAfterDefeat()
+{
+    const FString LevelName = UGameplayStatics::GetCurrentLevelName(this, true);
+    if (!LevelName.IsEmpty())
+    {
+        UGameplayStatics::OpenLevel(this, FName(*LevelName));
     }
 }
