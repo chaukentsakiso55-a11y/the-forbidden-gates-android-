@@ -7,8 +7,8 @@
 #include "TFGCheckpointActor.h"
 #include "TFGEncounterZone.h"
 #include "TFGEnemyCharacter.h"
-#include "TFGGateTransitionActor.h"
 #include "TFGInteractableActor.h"
+#include "TFGLevelTransitionActor.h"
 
 ATFGLevelOnePrototypeWorld::ATFGLevelOnePrototypeWorld()
 {
@@ -33,23 +33,19 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
 {
     Super::BeginPlay();
 
-    AddBox(FVector(2200.0f, 0.0f, -70.0f), FVector(48.0f, 10.0f, 0.7f));
-    AddBox(FVector(2200.0f, 1050.0f, 250.0f), FVector(48.0f, 0.5f, 3.2f));
-    AddBox(FVector(2200.0f, -1050.0f, 250.0f), FVector(48.0f, 0.5f, 3.2f));
+    AddBox(FVector(1800.0f, 0.0f, -70.0f), FVector(40.0f, 10.0f, 0.7f));
+    AddBox(FVector(1800.0f, 1050.0f, 250.0f), FVector(40.0f, 0.5f, 3.2f));
+    AddBox(FVector(1800.0f, -1050.0f, 250.0f), FVector(40.0f, 0.5f, 3.2f));
 
-    for (int32 Index = 0; Index < 8; ++Index)
+    for (int32 Index = 0; Index < 7; ++Index)
     {
-        const float X = 550.0f + Index * 520.0f;
-        AddBox(FVector(X, 650.0f, 180.0f), FVector(2.0f, 2.4f, 3.6f));
-        AddBox(FVector(X + 180.0f, -650.0f, 140.0f), FVector(1.6f, 2.1f, 2.8f));
+        const float X = 450.0f + Index * 480.0f;
+        AddBox(FVector(X, 650.0f, 150.0f), FVector(1.8f, 2.2f, 3.0f));
+        AddBox(FVector(X + 160.0f, -650.0f, 130.0f), FVector(1.5f, 2.0f, 2.6f));
     }
 
-    AddBox(FVector(2350.0f, 0.0f, 420.0f), FVector(2.0f, 2.0f, 8.0f));
-    AddBox(FVector(3600.0f, 0.0f, 260.0f), FVector(4.0f, 5.0f, 5.0f));
-
-    AddBox(FVector(4450.0f, -260.0f, 300.0f), FVector(1.2f, 1.2f, 6.0f));
-    AddBox(FVector(4450.0f, 260.0f, 300.0f), FVector(1.2f, 1.2f, 6.0f));
-    AddBox(FVector(4450.0f, 0.0f, 610.0f), FVector(1.2f, 4.0f, 1.0f));
+    AddBox(FVector(2450.0f, 0.0f, 120.0f), FVector(4.0f, 3.0f, 2.4f));
+    AddBox(FVector(3300.0f, 0.0f, 180.0f), FVector(5.0f, 5.0f, 3.6f));
 
     auto SpawnCheckpoint = [this](const FVector& Location, FName CheckpointId)
     {
@@ -62,7 +58,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         }
     };
 
-    SpawnCheckpoint(FVector(250.0f, 0.0f, 90.0f), TEXT("L01_Start"));
+    SpawnCheckpoint(FVector(200.0f, 0.0f, 90.0f), TEXT("L01_Start"));
 
     ATFGInteractableActor* Captain = SpawnInteraction(
         FVector(520.0f, 0.0f, 70.0f),
@@ -71,64 +67,50 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
     if (Captain)
     {
         Captain->SpeakerName = FText::FromString(TEXT("Captain Arlen"));
-        Captain->StoryLine = FText::FromString(TEXT("The city is quiet today. Show me your stance before you begin patrol."));
+        Captain->StoryLine = FText::FromString(TEXT("Festival duty or not, your stance still matters. Show me what you remember."));
     }
 
-    SpawnEncounter(FVector(1050.0f, 0.0f, 40.0f), 1, 2, 2);
+    SpawnEncounter(FVector(1020.0f, 0.0f, 40.0f), 1, 2, 2);
 
     ATFGInteractableActor* Mira = SpawnInteraction(
-        FVector(1650.0f, 80.0f, 70.0f),
-        FText::FromString(TEXT("Speak to Mira")),
-        TEXT("MiraMarket"), 2, 3);
+        FVector(1600.0f, 80.0f, 70.0f),
+        FText::FromString(TEXT("Speak with Mira at the festival market")),
+        TEXT("MiraFestival"), 2, 3);
     if (Mira)
     {
         Mira->SpeakerName = FText::FromString(TEXT("Mira"));
-        Mira->StoryLine = FText::FromString(TEXT("Something feels wrong. The birds fled north before sunrise."));
+        Mira->StoryLine = FText::FromString(TEXT("Everyone is pretending the border rumors are nothing. I hope they are right."));
     }
 
-    SpawnCheckpoint(FVector(2050.0f, 0.0f, 90.0f), TEXT("L01_Market"));
+    SpawnCheckpoint(FVector(2050.0f, 0.0f, 90.0f), TEXT("L01_FestivalMarket"));
 
-    ATFGInteractableActor* Watchtower = SpawnInteraction(
-        FVector(2350.0f, 0.0f, 110.0f),
-        FText::FromString(TEXT("Inspect the northern watchtower")),
-        TEXT("NorthernWatchtower"), 3, 4);
-    if (Watchtower)
+    ATFGInteractableActor* Elyra = SpawnInteraction(
+        FVector(2500.0f, 0.0f, 90.0f),
+        FText::FromString(TEXT("Meet Princess Elyra")),
+        TEXT("PrincessElyraFestival"), 3, 4);
+    if (Elyra)
     {
-        Watchtower->SpeakerName = FText::FromString(TEXT("Kael"));
-        Watchtower->StoryLine = FText::FromString(TEXT("Smoke rises beyond the walls. Then the warning bells begin."));
+        Elyra->SpeakerName = FText::FromString(TEXT("Princess Elyra"));
+        Elyra->StoryLine = FText::FromString(TEXT("Kael, look at the old Gate carvings on the festival banners. Strange that we celebrate symbols nobody can explain."));
     }
 
-    SpawnEncounter(FVector(2925.0f, 0.0f, 40.0f), 4, 5, 3);
-
-    ATFGInteractableActor* Palace = SpawnInteraction(
-        FVector(3550.0f, 0.0f, 100.0f),
-        FText::FromString(TEXT("Enter the royal palace")),
-        TEXT("RoyalPalace"), 5, 6);
-    if (Palace)
+    FActorSpawnParameters TransitionParams;
+    TransitionParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ATFGLevelTransitionActor* Exit = GetWorld()->SpawnActor<ATFGLevelTransitionActor>(
+        ATFGLevelTransitionActor::StaticClass(), FVector(3300.0f, 0.0f, 100.0f), FRotator::ZeroRotator, TransitionParams);
+    if (Exit)
     {
-        Palace->SpeakerName = FText::FromString(TEXT("Kael"));
-        Palace->StoryLine = FText::FromString(TEXT("The royal chambers are broken open. Princess Elyra is gone."));
-    }
-
-    SpawnCheckpoint(FVector(3850.0f, 0.0f, 90.0f), TEXT("L01_Palace"));
-
-    FActorSpawnParameters GateParams;
-    GateParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    ATFGGateTransitionActor* Gate = GetWorld()->SpawnActor<ATFGGateTransitionActor>(
-        ATFGGateTransitionActor::StaticClass(), FVector(4300.0f, 0.0f, 100.0f), FRotator::ZeroRotator, GateParams);
-    if (Gate)
-    {
-        Gate->InteractionId = TEXT("FirstForbiddenGate");
-        Gate->InteractionPrompt = FText::FromString(TEXT("Enter the Forbidden Gate"));
-        Gate->QuestId = QuestId;
-        Gate->RequiredQuestStage = 6;
-        Gate->AdvanceQuestToStage = 7;
-        Gate->bOneShot = true;
-        Gate->GateId = TEXT("Gate_Elaris_First");
-        Gate->LevelToComplete = 1;
-        Gate->SpeakerName = FText::FromString(TEXT("The Gate"));
-        Gate->StoryLine = FText::FromString(TEXT("The ancient stone answers your presence. Beyond this threshold, the kingdom ends."));
-        Gate->RefreshPresentation();
+        Exit->InteractionId = TEXT("FestivalOverlook");
+        Exit->InteractionPrompt = FText::FromString(TEXT("Walk to the city overlook"));
+        Exit->QuestId = QuestId;
+        Exit->RequiredQuestStage = 4;
+        Exit->AdvanceQuestToStage = 5;
+        Exit->bCompleteQuest = true;
+        Exit->bOneShot = true;
+        Exit->LevelToComplete = 1;
+        Exit->SpeakerName = FText::FromString(TEXT("Kael"));
+        Exit->StoryLine = FText::FromString(TEXT("The bells roll across Elaris. Below, the festival shines as though nothing in the world could reach it."));
+        Exit->RefreshPresentation();
     }
 }
 
