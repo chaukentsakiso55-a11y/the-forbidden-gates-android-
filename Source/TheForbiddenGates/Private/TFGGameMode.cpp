@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "TFGLevelOneDirector.h"
 #include "TFGLevelOnePrototypeWorld.h"
+#include "TFGLevelThreeDirector.h"
+#include "TFGLevelThreePrototypeWorld.h"
 #include "TFGLevelTwoDirector.h"
 #include "TFGLevelTwoPrototypeWorld.h"
 #include "TFGOpeningStorySubsystem.h"
@@ -37,7 +39,7 @@ void ATFGGameMode::BeginPlay()
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
     FName ExpectedMapId = NAME_None;
-    FVector DefaultSpawn(0.0f, 0.0f, 140.0f);
+    const FVector DefaultSpawn(0.0f, 0.0f, 140.0f);
 
     if (Save->CurrentLevel == 1 && !Save->CompletedLevels.Contains(1))
     {
@@ -47,9 +49,15 @@ void ATFGGameMode::BeginPlay()
     }
     else if (Save->CurrentLevel == 2 && !Save->CompletedLevels.Contains(2))
     {
-        ExpectedMapId = TEXT("L02_BeyondElaris");
+        ExpectedMapId = TEXT("L02_TheSkyTurnsRed");
         GetWorld()->SpawnActor<ATFGLevelTwoDirector>(ATFGLevelTwoDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
         GetWorld()->SpawnActor<ATFGLevelTwoPrototypeWorld>(ATFGLevelTwoPrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    }
+    else if (Save->CurrentLevel == 3 && !Save->CompletedLevels.Contains(3))
+    {
+        ExpectedMapId = TEXT("L03_PalaceUnderSiege");
+        GetWorld()->SpawnActor<ATFGLevelThreeDirector>(ATFGLevelThreeDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+        GetWorld()->SpawnActor<ATFGLevelThreePrototypeWorld>(ATFGLevelThreePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
     }
 
     if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
