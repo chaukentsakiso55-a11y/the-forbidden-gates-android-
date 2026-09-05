@@ -6,8 +6,10 @@
 
 class UAbilitySystemComponent;
 class UGameplayEffect;
+class UPointLightComponent;
 class UProjectileMovementComponent;
 class USphereComponent;
+class UStaticMeshComponent;
 
 UCLASS(Blueprintable)
 class THEFORBIDDENGATES_API ATFGMagicProjectile : public AActor
@@ -28,6 +30,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Magic")
     TObjectPtr<USphereComponent> CollisionSphere;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Magic")
+    TObjectPtr<UStaticMeshComponent> VisualMesh;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Magic")
+    TObjectPtr<UPointLightComponent> GlowLight;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Magic")
     TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
