@@ -8,6 +8,7 @@ class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 class USpringArmComponent;
+class UTFGMobileControlsWidget;
 struct FInputActionValue;
 
 UCLASS(Blueprintable)
@@ -21,6 +22,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Interaction")
     void TryInteract();
+
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Magic")
+    void CastPrimaryMagic();
 
 protected:
     virtual void BeginPlay() override;
@@ -55,5 +59,10 @@ protected:
 private:
     void Move(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
-    void CastPrimaryMagic();
+    void MoveForwardLegacy(float Value);
+    void MoveRightLegacy(float Value);
+    void TurnLegacy(float Value);
+    void LookUpLegacy(float Value);
+
+    UPROPERTY() TObjectPtr<UTFGMobileControlsWidget> MobileControlsWidget;
 };
