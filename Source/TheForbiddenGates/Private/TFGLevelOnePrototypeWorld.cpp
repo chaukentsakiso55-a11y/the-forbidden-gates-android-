@@ -55,6 +55,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         TEXT("CaptainArlen"), 0, 1);
     if (Captain)
     {
+        Captain->SpeakerName = FText::FromString(TEXT("Captain Arlen"));
         Captain->StoryLine = FText::FromString(TEXT("The city is quiet today. Show me your stance before you begin patrol."));
     }
 
@@ -66,6 +67,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         TEXT("MiraMarket"), 2, 3);
     if (Mira)
     {
+        Mira->SpeakerName = FText::FromString(TEXT("Mira"));
         Mira->StoryLine = FText::FromString(TEXT("Something feels wrong. The birds fled north before sunrise."));
     }
 
@@ -75,6 +77,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         TEXT("NorthernWatchtower"), 3, 4);
     if (Watchtower)
     {
+        Watchtower->SpeakerName = FText::FromString(TEXT("Kael"));
         Watchtower->StoryLine = FText::FromString(TEXT("Smoke rises beyond the walls. Then the warning bells begin."));
     }
 
@@ -86,6 +89,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         TEXT("RoyalPalace"), 5, 6);
     if (Palace)
     {
+        Palace->SpeakerName = FText::FromString(TEXT("Kael"));
         Palace->StoryLine = FText::FromString(TEXT("The royal chambers are broken open. Princess Elyra is gone."));
     }
 
@@ -95,6 +99,7 @@ void ATFGLevelOnePrototypeWorld::BeginPlay()
         TEXT("FirstForbiddenGate"), 6, 7);
     if (Gate)
     {
+        Gate->SpeakerName = FText::FromString(TEXT("The Gate"));
         Gate->StoryLine = FText::FromString(TEXT("The ancient stone answers your presence. The road beyond Elaris opens."));
     }
 }
