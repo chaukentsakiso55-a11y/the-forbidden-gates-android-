@@ -19,6 +19,7 @@ public:
     ATFGCharacterBase();
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
     UFUNCTION(BlueprintPure, Category="Forbidden Gates|Character") UTFGAttributeSet* GetAttributes() const { return Attributes; }
+    UFUNCTION(BlueprintPure, Category="Forbidden Gates|Quest") UTFGQuestComponent* GetQuestComponent() const { return QuestComponent; }
     UFUNCTION(BlueprintPure, Category="Forbidden Gates|Character") bool IsAlive() const;
     UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Abilities") void GrantStartupAbilities();
 
