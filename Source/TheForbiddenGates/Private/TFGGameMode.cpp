@@ -2,10 +2,11 @@
 
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "TFGLevelOneDirector.h"
 #include "TFGLevelOnePrototypeWorld.h"
+#include "TFGLevelTwoDirector.h"
+#include "TFGLevelTwoPrototypeWorld.h"
 #include "TFGOpeningStorySubsystem.h"
 #include "TFGPlayerCharacter.h"
 #include "TFGProgressionSubsystem.h"
@@ -21,29 +22,45 @@ void ATFGGameMode::BeginPlay()
     Super::BeginPlay();
 
     UGameInstance* GameInstance = GetGameInstance();
-    if (!GameInstance) return;
+    if (!GameInstance || !GetWorld()) return;
 
     if (UTFGOpeningStorySubsystem* OpeningStory = GameInstance->GetSubsystem<UTFGOpeningStorySubsystem>())
     {
         OpeningStory->StartOpeningStoryIfNeeded();
     }
 
-    if (UTFGProgressionSubsystem* Progression = GameInstance->GetSubsystem<UTFGProgressionSubsystem>())
-    {
-        if (UTFGSaveGame* Save = Progression->GetCurrentSave())
-        {
-            if (Save->CurrentLevel == 1 && !Save->CompletedLevels.Contains(1) && GetWorld())
-            {
-                FActorSpawnParameters Params;
-                Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-                GetWorld()->SpawnActor<ATFGLevelOneDirector>(ATFGLevelOneDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
-                GetWorld()->SpawnActor<ATFGLevelOnePrototypeWorld>(ATFGLevelOnePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    UTFGProgressionSubsystem* Progression = GameInstance->GetSubsystem<UTFGProgressionSubsystem>();
+    UTFGSaveGame* Save = Progression ? Progression->GetCurrentSave() : nullptr;
+    if (!Save) return;
 
-                if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
-                {
-                    PlayerPawn->SetActorLocationAndRotation(FVector(0.0f, 0.0f, 140.0f), FRotator(0.0f, 0.0f, 0.0f), false, nullptr, ETeleportType::TeleportPhysics);
-                }
-            }
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    FName ExpectedMapId = NAME_None;
+    FVector DefaultSpawn(0.0f, 0.0f, 140.0f);
+
+    if (Save->CurrentLevel == 1 && !Save->CompletedLevels.Contains(1))
+    {
+        ExpectedMapId = TEXT("L01_MorningInElaris");
+        GetWorld()->SpawnActor<ATFGLevelOneDirector>(ATFGLevelOneDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+        GetWorld()->SpawnActor<ATFGLevelOnePrototypeWorld>(ATFGLevelOnePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    }
+    else if (Save->CurrentLevel == 2 && !Save->CompletedLevels.Contains(2))
+    {
+        ExpectedMapId = TEXT("L02_BeyondElaris");
+        GetWorld()->SpawnActor<ATFGLevelTwoDirector>(ATFGLevelTwoDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+        GetWorld()->SpawnActor<ATFGLevelTwoPrototypeWorld>(ATFGLevelTwoPrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    }
+
+    if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+    {
+        if (!ExpectedMapId.IsNone() && Save->LastMapId == ExpectedMapId && !Save->CurrentCheckpoint.IsNone())
+        {
+            PlayerPawn->SetActorTransform(Save->LastPlayerTransform, false, nullptr, ETeleportType::TeleportPhysics);
+        }
+        else
+        {
+            PlayerPawn->SetActorLocationAndRotation(DefaultSpawn, FRotator::ZeroRotator, false, nullptr, ETeleportType::TeleportPhysics);
         }
     }
 }
