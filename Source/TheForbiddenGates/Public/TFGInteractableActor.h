@@ -33,6 +33,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Interaction")
     FText InteractionPrompt = FText::FromString(TEXT("Interact"));
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Story")
+    FText SpeakerName;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Quest")
     FName QuestId = NAME_None;
 
@@ -60,5 +63,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> PromptLabel;
 
 private:
+    void ShowStoryLine(APawn* Interactor);
     bool bConsumed = false;
 };
