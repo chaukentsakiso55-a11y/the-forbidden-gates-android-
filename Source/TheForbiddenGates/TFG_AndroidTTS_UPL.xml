@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    <init>
+        <log text="TFG Android narrator UPL active" />
+    </init>
+
+    <gameActivityImportAdditions>
+        <insert>
+import android.speech.tts.TextToSpeech;
+import java.util.Locale;
+        </insert>
+    </gameActivityImportAdditions>
+
+    <gameActivityClassAdditions>
+        <insert>
+<![CDATA[
+private TextToSpeech tfgNarratorTts = null;
+private boolean tfgNarratorReady = false;
+private String tfgNarratorPendingText = null;
+private float tfgNarratorPendingPitch = 0.58f;
+private float tfgNarratorPendingRate = 0.78f;
+
+private void TFGNarratorSpeakInternal(String text, float pitch, float rate)
+{
+    if (tfgNarratorTts == null || !tfgNarratorReady || text == null || text.length() == 0)
+    {
+        tfgNarratorPendingText = text;
+        tfgNarratorPendingPitch = pitch;
+        tfgNarratorPendingRate = rate;
+        return;
+    }
+
+    tfgNarratorTts.setPitch(Math.max(0.1f, Math.min(2.0f, pitch)));
+    tfgNarratorTts.setSpeechRate(Math.max(0.1f, Math.min(2.0f, rate)));
+    tfgNarratorTts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TFG_OPENING_STORY");
+}
+
+public void AndroidThunkJava_TFGNarratorSpeak(final String text, final float pitch, final float rate)
+{
+    runOnUiThread(new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            TFGNarratorSpeakInternal(text, pitch, rate);
+        }
+    });
+}
+
+public void AndroidThunkJava_TFGNarratorStop()
+{
+    runOnUiThread(new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            tfgNarratorPendingText = null;
+            if (tfgNarratorTts != null)
+            {
+                tfgNarratorTts.stop();
+            }
+        }
+    });
+}
+]]>
+        </insert>
+    </gameActivityClassAdditions>
+
+    <gameActivityOnCreateAdditions>
+        <insert>
+<![CDATA[
+tfgNarratorTts = new TextToSpeech(this, new TextToSpeech.OnInitListener()
+{
+    @Override
+    public void onInit(int status)
+    {
+        tfgNarratorReady = (status == TextToSpeech.SUCCESS);
+        if (tfgNarratorReady)
+        {
+            tfgNarratorTts.setLanguage(Locale.UK);
+            if (tfgNarratorPendingText != null)
+            {
+                TFGNarratorSpeakInternal(tfgNarratorPendingText, tfgNarratorPendingPitch, tfgNarratorPendingRate);
+                tfgNarratorPendingText = null;
+            }
+        }
+    }
+});
+]]>
+        </insert>
+    </gameActivityOnCreateAdditions>
+
+    <gameActivityOnDestroyAdditions>
+        <insert>
+<![CDATA[
+if (tfgNarratorTts != null)
+{
+    tfgNarratorTts.stop();
+    tfgNarratorTts.shutdown();
+    tfgNarratorTts = null;
+    tfgNarratorReady = false;
+}
+]]>
+        </insert>
+    </gameActivityOnDestroyAdditions>
+</root>
