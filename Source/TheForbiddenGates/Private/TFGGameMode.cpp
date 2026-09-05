@@ -2,6 +2,8 @@
 
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "TFGLevelOneDirector.h"
 #include "TFGLevelOnePrototypeWorld.h"
 #include "TFGOpeningStorySubsystem.h"
@@ -36,6 +38,11 @@ void ATFGGameMode::BeginPlay()
                 Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
                 GetWorld()->SpawnActor<ATFGLevelOneDirector>(ATFGLevelOneDirector::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
                 GetWorld()->SpawnActor<ATFGLevelOnePrototypeWorld>(ATFGLevelOnePrototypeWorld::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+
+                if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+                {
+                    PlayerPawn->SetActorLocationAndRotation(FVector(0.0f, 0.0f, 140.0f), FRotator(0.0f, 0.0f, 0.0f), false, nullptr, ETeleportType::TeleportPhysics);
+                }
             }
         }
     }
