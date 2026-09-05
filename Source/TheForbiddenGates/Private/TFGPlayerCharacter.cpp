@@ -51,6 +51,14 @@ void ATFGPlayerCharacter::BeginPlay()
             .AddUObject(this, &ATFGPlayerCharacter::HandleHealthChanged);
     }
 
+    GetWorldTimerManager().SetTimer(
+        ResourceRegenTimer,
+        this,
+        &ATFGPlayerCharacter::RegenerateResources,
+        0.25f,
+        true,
+        0.25f);
+
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
         if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
@@ -92,6 +100,7 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
         if (LookAction) EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATFGPlayerCharacter::Look);
         if (PrimaryMagicAction) EnhancedInput->BindAction(PrimaryMagicAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::CastPrimaryMagic);
         if (InteractAction) EnhancedInput->BindAction(InteractAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::TryInteract);
+        if (DodgeAction) EnhancedInput->BindAction(DodgeAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::Dodge);
 
         if (JumpAction)
         {
@@ -122,6 +131,10 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     if (!InteractAction)
     {
         PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &ATFGPlayerCharacter::TryInteract);
+    }
+    if (!DodgeAction)
+    {
+        PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &ATFGPlayerCharacter::Dodge);
     }
 }
 
@@ -198,6 +211,58 @@ void ATFGPlayerCharacter::TryInteract()
     }
 }
 
+void ATFGPlayerCharacter::Dodge()
+{
+    if (bDefeatHandled || !GetWorld()) return;
+
+    const double CurrentTime = GetWorld()->GetTimeSeconds();
+    if (CurrentTime < NextAllowedDodgeTime) return;
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    UTFGAttributeSet* AttributeSet = GetAttributes();
+    if (!ASC || !AttributeSet || AttributeSet->GetStamina() < DodgeStaminaCost) return;
+
+    ASC->SetNumericAttributeBase(
+        UTFGAttributeSet::GetStaminaAttribute(),
+        FMath::Clamp(AttributeSet->GetStamina() - DodgeStaminaCost, 0.0f, AttributeSet->GetMaxStamina()));
+
+    FVector DodgeDirection = GetLastMovementInputVector().GetSafeNormal2D();
+    if (DodgeDirection.IsNearlyZero())
+    {
+        DodgeDirection = GetActorForwardVector().GetSafeNormal2D();
+    }
+
+    LaunchCharacter(DodgeDirection * DodgeImpulse, true, false);
+    NextAllowedDodgeTime = CurrentTime + DodgeCooldown;
+}
+
+void ATFGPlayerCharacter::RegenerateResources()
+{
+    if (bDefeatHandled) return;
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    UTFGAttributeSet* AttributeSet = GetAttributes();
+    if (!ASC || !AttributeSet) return;
+
+    constexpr float TickSeconds = 0.25f;
+
+    const float NewMana = FMath::Min(
+        AttributeSet->GetMaxMana(),
+        AttributeSet->GetMana() + ManaRegenPerSecond * TickSeconds);
+    const float NewStamina = FMath::Min(
+        AttributeSet->GetMaxStamina(),
+        AttributeSet->GetStamina() + StaminaRegenPerSecond * TickSeconds);
+
+    if (!FMath::IsNearlyEqual(NewMana, AttributeSet->GetMana()))
+    {
+        ASC->SetNumericAttributeBase(UTFGAttributeSet::GetManaAttribute(), NewMana);
+    }
+    if (!FMath::IsNearlyEqual(NewStamina, AttributeSet->GetStamina()))
+    {
+        ASC->SetNumericAttributeBase(UTFGAttributeSet::GetStaminaAttribute(), NewStamina);
+    }
+}
+
 void ATFGPlayerCharacter::HandleHealthChanged(const FOnAttributeChangeData& ChangeData)
 {
     if (ChangeData.NewValue <= 0.0f)
@@ -211,6 +276,7 @@ void ATFGPlayerCharacter::HandleDefeat()
     if (bDefeatHandled) return;
     bDefeatHandled = true;
 
+    GetWorldTimerManager().ClearTimer(ResourceRegenTimer);
     GetCharacterMovement()->DisableMovement();
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
