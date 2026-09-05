@@ -22,6 +22,10 @@ public:
     UFUNCTION(BlueprintPure, Category="Forbidden Gates|Quest") const TArray<FTFGQuestState>& ExportQuestStates() const { return QuestStates; }
     UPROPERTY(BlueprintAssignable) FTFGQuestChanged OnQuestChanged;
 
+protected:
+    virtual void BeginPlay() override;
+
 private:
+    void SyncToPersistentSave();
     UPROPERTY() TArray<FTFGQuestState> QuestStates;
 };
