@@ -48,7 +48,7 @@ void ATFGLevelOneDirector::InitializeMission()
         }
     }
 
-    if (State.bCompleted || State.Stage >= 7)
+    if (State.bCompleted || State.Stage >= 5)
     {
         FinishLevelOne();
     }
@@ -73,7 +73,7 @@ void ATFGLevelOneDirector::HandleQuestChanged(FName QuestId, int32 Stage)
     FTFGQuestState State;
     if (UTFGQuestComponent* Quest = QuestComponent.Get())
     {
-        if (Quest->GetQuestState(LevelOneQuestId, State) && (State.bCompleted || Stage >= 7))
+        if (Quest->GetQuestState(LevelOneQuestId, State) && (State.bCompleted || Stage >= 5))
         {
             FinishLevelOne();
             return;
@@ -99,22 +99,16 @@ void ATFGLevelOneDirector::ApplyObjectiveForStage(int32 Stage)
             Objective = FText::FromString(TEXT("Complete your morning combat drill."));
             break;
         case 2:
-            Objective = FText::FromString(TEXT("Cross the market and speak with Mira."));
+            Objective = FText::FromString(TEXT("Cross the festival market and speak with Mira."));
             break;
         case 3:
-            Objective = FText::FromString(TEXT("Investigate the smoke rising near the northern watchtower."));
+            Objective = FText::FromString(TEXT("Meet Princess Elyra near the royal festival dais."));
             break;
         case 4:
-            Objective = FText::FromString(TEXT("Defend the courtyard from the invading soldiers."));
-            break;
-        case 5:
-            Objective = FText::FromString(TEXT("Reach the royal palace and find Princess Elyra."));
-            break;
-        case 6:
-            Objective = FText::FromString(TEXT("Follow the kidnappers toward the Forbidden Gate."));
+            Objective = FText::FromString(TEXT("Head toward the city overlook as the festival bells begin."));
             break;
         default:
-            Objective = FText::FromString(TEXT("Enter the Forbidden Gate."));
+            Objective = FText::FromString(TEXT("Morning patrol complete."));
             break;
     }
 
@@ -139,7 +133,7 @@ void ATFGLevelOneDirector::FinishLevelOne()
     if (ObjectiveWidget)
     {
         ObjectiveWidget->SetObjective(
-            FText::FromString(TEXT("THE FIRST GATE AWAKENS")),
-            FText::FromString(TEXT("Step through the Gate to leave Elaris behind.")));
+            FText::FromString(TEXT("LEVEL 1 COMPLETE")),
+            FText::FromString(TEXT("For one final moment, Elaris is still at peace.")));
     }
 }
