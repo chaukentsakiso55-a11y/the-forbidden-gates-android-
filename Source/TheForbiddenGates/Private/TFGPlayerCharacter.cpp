@@ -2,6 +2,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -15,8 +16,11 @@
 #include "TFGArcaneBoltAbility.h"
 #include "TFGAttributeSet.h"
 #include "TFGCombatHUDWidget.h"
+#include "TFGGatefireEchoAbility.h"
 #include "TFGInteractable.h"
 #include "TFGMobileControlsWidget.h"
+#include "TFGProgressionSubsystem.h"
+#include "TFGSaveGame.h"
 
 ATFGPlayerCharacter::ATFGPlayerCharacter()
 {
@@ -44,6 +48,7 @@ ATFGPlayerCharacter::ATFGPlayerCharacter()
 void ATFGPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
+    RefreshUnlockedAbilities();
 
     if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
     {
@@ -99,6 +104,7 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
         if (MoveAction) EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATFGPlayerCharacter::Move);
         if (LookAction) EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATFGPlayerCharacter::Look);
         if (PrimaryMagicAction) EnhancedInput->BindAction(PrimaryMagicAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::CastPrimaryMagic);
+        if (SecondaryMagicAction) EnhancedInput->BindAction(SecondaryMagicAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::CastSecondaryMagic);
         if (InteractAction) EnhancedInput->BindAction(InteractAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::TryInteract);
         if (DodgeAction) EnhancedInput->BindAction(DodgeAction, ETriggerEvent::Started, this, &ATFGPlayerCharacter::Dodge);
 
@@ -127,6 +133,10 @@ void ATFGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     if (!PrimaryMagicAction)
     {
         PlayerInputComponent->BindAction(TEXT("PrimaryMagic"), IE_Pressed, this, &ATFGPlayerCharacter::CastPrimaryMagic);
+    }
+    if (!SecondaryMagicAction)
+    {
+        PlayerInputComponent->BindAction(TEXT("SecondaryMagic"), IE_Pressed, this, &ATFGPlayerCharacter::CastSecondaryMagic);
     }
     if (!InteractAction)
     {
@@ -188,6 +198,36 @@ void ATFGPlayerCharacter::CastPrimaryMagic()
         FGameplayTagContainer AbilityTags;
         AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Magic.Primary")));
         AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+    }
+}
+
+void ATFGPlayerCharacter::CastSecondaryMagic()
+{
+    if (bDefeatHandled) return;
+
+    if (UAbilitySystemComponent* AbilitySystemComponent = GetAbilitySystemComponent())
+    {
+        FGameplayTagContainer AbilityTags;
+        AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Magic.Secondary")));
+        AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags);
+    }
+}
+
+void ATFGPlayerCharacter::RefreshUnlockedAbilities()
+{
+    if (!HasAuthority()) return;
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    UGameInstance* GameInstance = GetGameInstance();
+    if (!ASC || !GameInstance) return;
+
+    UTFGProgressionSubsystem* Progression = GameInstance->GetSubsystem<UTFGProgressionSubsystem>();
+    UTFGSaveGame* Save = Progression ? Progression->GetCurrentSave() : nullptr;
+    if (!Save) return;
+
+    if (Save->UnlockedAbilities.Contains(TEXT("GatefireEcho")) && !ASC->FindAbilitySpecFromClass(UTFGGatefireEchoAbility::StaticClass()))
+    {
+        ASC->GiveAbility(FGameplayAbilitySpec(UTFGGatefireEchoAbility::StaticClass(), 1, INDEX_NONE, this));
     }
 }
 
