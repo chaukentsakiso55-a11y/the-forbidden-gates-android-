@@ -113,54 +113,25 @@ namespace
 
     FTFGCampaignStep MakeInteract(const FString& Objective, const FString& Prompt, const FString& Speaker, const FString& Dialogue)
     {
-        FTFGCampaignStep Step;
-        Step.Kind = ETFGCampaignStepKind::Interact;
-        Step.Objective = FText::FromString(Objective);
-        Step.Prompt = FText::FromString(Prompt);
-        Step.Speaker = FText::FromString(Speaker);
-        Step.Dialogue = FText::FromString(Dialogue);
-        return Step;
+        FTFGCampaignStep Step; Step.Kind = ETFGCampaignStepKind::Interact; Step.Objective = FText::FromString(Objective); Step.Prompt = FText::FromString(Prompt); Step.Speaker = FText::FromString(Speaker); Step.Dialogue = FText::FromString(Dialogue); return Step;
     }
 
     FTFGCampaignStep MakeEncounter(const FString& Objective, int32 Count, bool bElite)
     {
-        FTFGCampaignStep Step;
-        Step.Kind = ETFGCampaignStepKind::Encounter;
-        Step.Objective = FText::FromString(Objective);
-        Step.EnemyCount = Count;
-        Step.bEliteEncounter = bElite;
-        return Step;
+        FTFGCampaignStep Step; Step.Kind = ETFGCampaignStepKind::Encounter; Step.Objective = FText::FromString(Objective); Step.EnemyCount = Count; Step.bEliteEncounter = bElite; return Step;
     }
 
-    FTFGCampaignStep MakeRelic(const FString& Objective, const FString& Prompt, FName RelicId, FName ItemId,
-        FName AbilityId = NAME_None, FName DisciplineId = NAME_None, int32 Mastery = 0)
+    FTFGCampaignStep MakeRelic(const FString& Objective, const FString& Prompt, FName RelicId, FName ItemId, FName AbilityId = NAME_None, FName DisciplineId = NAME_None, int32 Mastery = 0)
     {
-        FTFGCampaignStep Step;
-        Step.Kind = ETFGCampaignStepKind::Relic;
-        Step.Objective = FText::FromString(Objective);
-        Step.Prompt = FText::FromString(Prompt);
-        Step.Speaker = FText::FromString(TEXT("Ancient Relic"));
-        Step.Dialogue = FText::FromString(TEXT("The relic answers with a pulse of old magic."));
-        Step.RelicId = RelicId;
-        Step.ItemId = ItemId;
-        Step.AbilityUnlockId = AbilityId;
-        Step.DisciplineId = DisciplineId;
-        Step.MasteryAmount = Mastery;
-        return Step;
+        FTFGCampaignStep Step; Step.Kind = ETFGCampaignStepKind::Relic; Step.Objective = FText::FromString(Objective); Step.Prompt = FText::FromString(Prompt); Step.Speaker = FText::FromString(TEXT("Ancient Relic")); Step.Dialogue = FText::FromString(TEXT("The relic answers with a pulse of old magic.")); Step.RelicId = RelicId; Step.ItemId = ItemId; Step.AbilityUnlockId = AbilityId; Step.DisciplineId = DisciplineId; Step.MasteryAmount = Mastery; return Step;
     }
 
     bool IsEliteLevel(int32 Level)
     {
         switch (Level)
         {
-            case 9: case 10: case 16: case 19: case 20: case 27: case 29: case 30:
-            case 39: case 40: case 45: case 47: case 49: case 57: case 58: case 59:
-            case 60: case 66: case 67: case 69: case 70: case 77: case 79: case 80:
-            case 81: case 82: case 84: case 87: case 88: case 90: case 94: case 96:
-            case 97: case 98: case 99:
-                return true;
-            default:
-                return false;
+            case 9: case 10: case 16: case 19: case 20: case 27: case 29: case 30: case 39: case 40: case 45: case 47: case 49: case 57: case 58: case 59: case 60: case 66: case 67: case 69: case 70: case 77: case 79: case 80: case 81: case 82: case 84: case 87: case 88: case 90: case 94: case 96: case 97: case 98: case 99: return true;
+            default: return false;
         }
     }
 }
@@ -168,16 +139,8 @@ namespace
 bool FTFGCampaignCatalog::GetLevelSpec(int32 LevelNumber, FTFGCampaignLevelSpec& OutSpec)
 {
     if (!IsRuntimeLevel(LevelNumber)) return false;
-
     const FCampaignSeed* Seed = nullptr;
-    for (const FCampaignSeed& Candidate : CampaignSeeds)
-    {
-        if (Candidate.Level == LevelNumber)
-        {
-            Seed = &Candidate;
-            break;
-        }
-    }
+    for (const FCampaignSeed& Candidate : CampaignSeeds) if (Candidate.Level == LevelNumber) { Seed = &Candidate; break; }
     if (!Seed) return false;
 
     OutSpec = FTFGCampaignLevelSpec();
@@ -186,15 +149,14 @@ bool FTFGCampaignCatalog::GetLevelSpec(int32 LevelNumber, FTFGCampaignLevelSpec&
     OutSpec.Title = FText::FromString(Seed->Title);
     OutSpec.Summary = FText::FromString(Seed->Summary);
     OutSpec.RealmId = FName(Seed->Realm);
-    OutSpec.MapId = FName(*FString::Printf(TEXT("L%03d_%s"), LevelNumber, Seed->Realm));
-    OutSpec.QuestId = FName(*FString::Printf(TEXT("Campaign_L%03d"), LevelNumber));
+    OutSpec.MapId = FName(*FString::Printf(TEXT("L%02d_%s"), LevelNumber, Seed->Realm));
+    OutSpec.QuestId = FName(*FString::Printf(TEXT("Campaign_L%02d"), LevelNumber));
     OutSpec.bMidpointLevel = LevelNumber == 50;
     OutSpec.bFinalLevel = LevelNumber == 100;
 
     const FString Title(Seed->Title);
     const FString Summary(Seed->Summary);
     const bool bElite = IsEliteLevel(LevelNumber);
-
     OutSpec.Steps.Add(MakeInteract(FString::Printf(TEXT("Begin %s."), *Title), TEXT("Continue the journey"), TEXT("Kael"), Summary));
     OutSpec.Steps.Add(MakeEncounter(FString::Printf(TEXT("Push deeper through %s."), *Title), 2 + (LevelNumber % 3), false));
 
@@ -224,11 +186,7 @@ bool FTFGCampaignCatalog::GetLevelSpec(int32 LevelNumber, FTFGCampaignLevelSpec&
         default: break;
     }
 
-    if (!bAddedRelic)
-    {
-        OutSpec.Steps.Add(MakeInteract(FString::Printf(TEXT("Investigate the key site in %s."), *Title), TEXT("Investigate"), TEXT("Kael"), FString::Printf(TEXT("There is more here than the path first revealed. %s"), *Summary)));
-    }
-
+    if (!bAddedRelic) OutSpec.Steps.Add(MakeInteract(FString::Printf(TEXT("Investigate the key site in %s."), *Title), TEXT("Investigate"), TEXT("Kael"), FString::Printf(TEXT("There is more here than the path first revealed. %s"), *Summary)));
     OutSpec.Steps.Add(MakeEncounter(bElite ? TEXT("Survive the realm's elite challenge.") : TEXT("Clear the final obstacle."), bElite ? 4 : 3, bElite));
 
     if (LevelNumber == 50)
@@ -240,68 +198,15 @@ bool FTFGCampaignCatalog::GetLevelSpec(int32 LevelNumber, FTFGCampaignLevelSpec&
         OutSpec.Steps.Add(MakeInteract(TEXT("Listen to Elyra's explanation."), TEXT("Ask what happened"), TEXT("Elyra"), TEXT("I wasn't kidnapped. I stayed because the seals are failing, and Elaris is at the center of it.")));
         OutSpec.Steps.Add(MakeInteract(TEXT("Face the truth about the Heart Gate."), TEXT("Continue"), TEXT("Elyra"), TEXT("If we return without understanding the Heart Gate, we may carry the disaster home with us.")));
     }
-    if (LevelNumber == 59)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Reach the sealed royal archive."), TEXT("Open the archive"), TEXT("Elyra"), TEXT("These records were hidden under my father's seal.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Read Aldren's private orders."), TEXT("Read the orders"), TEXT("Elyra"), TEXT("He wasn't only trying to protect the Heart Gate. He was searching for a way to command it.")));
-    }
-    if (LevelNumber == 67)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Enter Vael's ruined sanctuary."), TEXT("Approach the fallen master"), TEXT("Vael"), TEXT("Another child of the Gates. You still think the bond makes you chosen.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Hear Vael's warning."), TEXT("Listen"), TEXT("Vael"), TEXT("The Hollow does not break Gate Masters from the outside. It teaches the bond to consume them from within.")));
-    }
-    if (LevelNumber == 74)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Enter the Hall of the Ardyn line."), TEXT("Read the dormant lineage"), TEXT("Orion's Record"), TEXT("Ardyn was not a royal line. It was the failsafe placed beside the Heart Gate.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 3, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Accept Kael's ancestry."), TEXT("Continue"), TEXT("Kael"), TEXT("So the Gate answered me because my family was built into its last defense.")));
-    }
-    if (LevelNumber == 77)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Reach the First Gate."), TEXT("Approach Orion"), TEXT("Orion"), TEXT("You have crossed half a world carrying pieces of a history your kingdoms forgot.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Hear the complete Hollow history."), TEXT("Listen to Orion"), TEXT("Orion"), TEXT("The Gates were roads before they became locks. The Heart Gate became a prison only after the First Hollow learned to feed on the network.")));
-    }
-    if (LevelNumber == 84)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Enter Vaelor's command chamber."), TEXT("Meet Emperor Vaelor"), TEXT("Vaelor"), TEXT("At last, no messengers. No soldiers speaking for us. Decide whether we lose another world to pride.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Choose whether to accept the temporary alliance."), TEXT("Answer Vaelor"), TEXT("Elyra"), TEXT("Whatever we choose, it ends when the Heart Gate is safe.")));
-    }
-    if (LevelNumber == 94)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Reach King Aldren."), TEXT("Confront Aldren"), TEXT("Aldren"), TEXT("You think I wanted power. I wanted a weapon strong enough that Elaris would never kneel to the Gates again.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Reject or understand the king's plan."), TEXT("Continue"), TEXT("Elyra"), TEXT("You tried to turn the prison lock into a throne.")));
-    }
-    if (LevelNumber == 98)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Enter the Heart Gate chamber."), TEXT("Enter the chamber"), TEXT("Orion"), TEXT("Every surviving Gate now answers this room.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 5, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Commit the allied plan."), TEXT("Approach the core"), TEXT("Elyra"), TEXT("Once we begin, every seal will feel it. There is no quiet way through this.")));
-    }
-    if (LevelNumber == 99)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Cross into the First Hollow's reach."), TEXT("Enter the final chamber"), TEXT("Kael"), TEXT("Everything we learned brought us here.")));
-        OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 6, true));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Break the Hollow's hold on the Gate network."), TEXT("Reach the Heart core"), TEXT("Elyra"), TEXT("It's weakening. The Gates are waiting for a command.")));
-    }
-    if (LevelNumber == 100)
-    {
-        OutSpec.Steps.Empty();
-        OutSpec.Steps.Add(MakeInteract(TEXT("Stand before the restored Heart Gate."), TEXT("Approach the Heart Gate"), TEXT("Elyra"), TEXT("The Hollow is gone. Now the choice belongs to us.")));
-        OutSpec.Steps.Add(MakeInteract(TEXT("Review what the journey changed."), TEXT("Look across the Gate network"), TEXT("Kael"), TEXT("Ten realms. A hundred roads. Every choice brought us back to this door.")));
-    }
+    if (LevelNumber == 59) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Reach the sealed royal archive."), TEXT("Open the archive"), TEXT("Elyra"), TEXT("These records were hidden under my father's seal."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Read Aldren's private orders."), TEXT("Read the orders"), TEXT("Elyra"), TEXT("He wasn't only trying to protect the Heart Gate. He was searching for a way to command it."))); }
+    if (LevelNumber == 67) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Enter Vael's ruined sanctuary."), TEXT("Approach the fallen master"), TEXT("Vael"), TEXT("Another child of the Gates. You still think the bond makes you chosen."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Hear Vael's warning."), TEXT("Listen"), TEXT("Vael"), TEXT("The Hollow does not break Gate Masters from the outside. It teaches the bond to consume them from within."))); }
+    if (LevelNumber == 74) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Enter the Hall of the Ardyn line."), TEXT("Read the dormant lineage"), TEXT("Orion's Record"), TEXT("Ardyn was not a royal line. It was the failsafe placed beside the Heart Gate."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 3, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Accept Kael's ancestry."), TEXT("Continue"), TEXT("Kael"), TEXT("So the Gate answered me because my family was built into its last defense."))); }
+    if (LevelNumber == 77) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Reach the First Gate."), TEXT("Approach Orion"), TEXT("Orion"), TEXT("You have crossed half a world carrying pieces of a history your kingdoms forgot."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Hear the complete Hollow history."), TEXT("Listen to Orion"), TEXT("Orion"), TEXT("The Gates were roads before they became locks. The Heart Gate became a prison only after the First Hollow learned to feed on the network."))); }
+    if (LevelNumber == 84) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Enter Vaelor's command chamber."), TEXT("Meet Emperor Vaelor"), TEXT("Vaelor"), TEXT("At last, no messengers. No soldiers speaking for us. Decide whether we lose another world to pride."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Choose whether to accept the temporary alliance."), TEXT("Answer Vaelor"), TEXT("Elyra"), TEXT("Whatever we choose, it ends when the Heart Gate is safe."))); }
+    if (LevelNumber == 94) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Reach King Aldren."), TEXT("Confront Aldren"), TEXT("Aldren"), TEXT("You think I wanted power. I wanted a weapon strong enough that Elaris would never kneel to the Gates again."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 4, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Reject or understand the king's plan."), TEXT("Continue"), TEXT("Elyra"), TEXT("You tried to turn the prison lock into a throne."))); }
+    if (LevelNumber == 98) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Enter the Heart Gate chamber."), TEXT("Enter the chamber"), TEXT("Orion"), TEXT("Every surviving Gate now answers this room."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 5, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Commit the allied plan."), TEXT("Approach the core"), TEXT("Elyra"), TEXT("Once we begin, every seal will feel it. There is no quiet way through this."))); }
+    if (LevelNumber == 99) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Cross into the First Hollow's reach."), TEXT("Enter the final chamber"), TEXT("Kael"), TEXT("Everything we learned brought us here."))); OutSpec.Steps.Add(MakeEncounter(TEXT("Survive the confrontation."), 6, true)); OutSpec.Steps.Add(MakeInteract(TEXT("Break the Hollow's hold on the Gate network."), TEXT("Reach the Heart core"), TEXT("Elyra"), TEXT("It's weakening. The Gates are waiting for a command."))); }
+    if (LevelNumber == 100) { OutSpec.Steps.Empty(); OutSpec.Steps.Add(MakeInteract(TEXT("Stand before the restored Heart Gate."), TEXT("Approach the Heart Gate"), TEXT("Elyra"), TEXT("The Hollow is gone. Now the choice belongs to us."))); OutSpec.Steps.Add(MakeInteract(TEXT("Review what the journey changed."), TEXT("Look across the Gate network"), TEXT("Kael"), TEXT("Ten realms. A hundred roads. Every choice brought us back to this door."))); }
 
     return true;
 }
