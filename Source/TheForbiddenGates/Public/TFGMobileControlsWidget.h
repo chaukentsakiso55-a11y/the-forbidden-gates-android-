@@ -19,6 +19,7 @@ protected:
 
 private:
     UFUNCTION() void HandleMagicPressed();
+    UFUNCTION() void HandleSecondaryMagicPressed();
     UFUNCTION() void HandleInteractPressed();
     UFUNCTION() void HandleJumpPressed();
     UFUNCTION() void HandleDodgePressed();
