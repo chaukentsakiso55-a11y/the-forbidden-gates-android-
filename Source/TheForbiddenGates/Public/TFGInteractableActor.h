@@ -6,6 +6,8 @@
 #include "TFGInteractableActor.generated.h"
 
 class USceneComponent;
+class UStaticMeshComponent;
+class UTextRenderComponent;
 class APawn;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTFGInteracted, FName, InteractionId, APawn*, Interactor);
@@ -21,6 +23,9 @@ public:
     virtual FText GetInteractionPrompt_Implementation(APawn* Interactor) const override;
     virtual bool CanInteract_Implementation(APawn* Interactor) const override;
     virtual void Interact_Implementation(APawn* Interactor) override;
+
+    UFUNCTION(BlueprintCallable, Category="Forbidden Gates|Interaction")
+    void RefreshPresentation();
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Forbidden Gates|Interaction")
     FName InteractionId = NAME_None;
@@ -50,8 +55,9 @@ public:
     FTFGInteracted OnInteracted;
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    TObjectPtr<USceneComponent> SceneRoot;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> SceneRoot;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> MarkerMesh;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> PromptLabel;
 
 private:
     bool bConsumed = false;
