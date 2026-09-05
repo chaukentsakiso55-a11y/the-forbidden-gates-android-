@@ -27,7 +27,7 @@ private:
     void ApplyObjectiveForStage(int32 Stage);
     void FinishMission();
 
-    FName QuestId = TEXT("L02_BeyondElaris");
+    FName QuestId = TEXT("L02_TheSkyTurnsRed");
     TWeakObjectPtr<ATFGCharacterBase> PlayerCharacter;
     TWeakObjectPtr<UTFGQuestComponent> QuestComponent;
     UPROPERTY() TObjectPtr<UTFGObjectiveWidget> ObjectiveWidget;
