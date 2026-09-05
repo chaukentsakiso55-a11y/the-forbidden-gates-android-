@@ -12,10 +12,34 @@ class THEFORBIDDENGATES_API UTFGGameplayAbility : public UGameplayAbility
 
 public:
     UTFGGameplayAbility();
+
+    virtual bool CheckCost(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+    virtual bool CheckCooldown(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+    virtual void ApplyCost(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+    virtual void ApplyCooldown(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability") FName AbilityId = NAME_None;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability") FText DisplayName;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability") ETFGMagicDiscipline Discipline = ETFGMagicDiscipline::Arcane;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability", meta=(ClampMin="1", ClampMax="100")) int32 UnlockLevel = 1;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability", meta=(ClampMin="0.0")) float BaseManaCost = 0.0f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Forbidden Gates|Ability", meta=(ClampMin="0.0")) float BaseCooldown = 0.0f;
+
+private:
+    mutable double NextAllowedActivationTime = 0.0;
 };
