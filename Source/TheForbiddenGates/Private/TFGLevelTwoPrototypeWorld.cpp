@@ -9,6 +9,8 @@
 #include "TFGEncounterZone.h"
 #include "TFGEnemyCharacter.h"
 #include "TFGInteractableActor.h"
+#include "TFGLevelTransitionActor.h"
+#include "TFGVeyrBruteEnemy.h"
 
 ATFGLevelTwoPrototypeWorld::ATFGLevelTwoPrototypeWorld()
 {
@@ -33,62 +35,70 @@ void ATFGLevelTwoPrototypeWorld::BeginPlay()
 {
     Super::BeginPlay();
 
-    AddBox(FVector(2200.0f, 0.0f, -80.0f), FVector(50.0f, 8.0f, 0.8f));
+    AddBox(FVector(2100.0f, 0.0f, -75.0f), FVector(46.0f, 10.0f, 0.75f));
+    AddBox(FVector(2100.0f, 1050.0f, 250.0f), FVector(46.0f, 0.5f, 3.2f));
+    AddBox(FVector(2100.0f, -1050.0f, 250.0f), FVector(46.0f, 0.5f, 3.2f));
 
-    for (int32 Index = 0; Index < 10; ++Index)
+    for (int32 Index = 0; Index < 9; ++Index)
     {
-        const float X = 400.0f + Index * 430.0f;
-        const float LeftHeight = 260.0f + (Index % 3) * 90.0f;
-        const float RightHeight = 320.0f + ((Index + 1) % 3) * 70.0f;
-        AddBox(FVector(X, 720.0f, LeftHeight * 0.5f), FVector(2.0f, 2.2f, LeftHeight / 100.0f));
-        AddBox(FVector(X + 140.0f, -720.0f, RightHeight * 0.5f), FVector(2.3f, 2.0f, RightHeight / 100.0f));
+        const float X = 420.0f + Index * 455.0f;
+        const float Collapse = (Index % 3 == 0) ? 0.55f : 1.0f;
+        AddBox(FVector(X, 660.0f, 150.0f * Collapse), FVector(1.8f, 2.2f, 3.0f * Collapse), FRotator(0.0f, Index % 2 == 0 ? 0.0f : 8.0f, 0.0f));
+        AddBox(FVector(X + 170.0f, -660.0f, 130.0f * Collapse), FVector(1.6f, 2.0f, 2.6f * Collapse), FRotator(0.0f, Index % 2 == 0 ? -6.0f : 4.0f, 0.0f));
     }
 
-    AddBox(FVector(2650.0f, -260.0f, 260.0f), FVector(1.0f, 1.0f, 5.2f));
-    AddBox(FVector(2650.0f, 260.0f, 260.0f), FVector(1.0f, 1.0f, 5.2f));
-    AddBox(FVector(2650.0f, 0.0f, 500.0f), FVector(1.0f, 4.0f, 0.8f));
-
-    AddBox(FVector(3950.0f, -240.0f, 180.0f), FVector(1.6f, 1.6f, 3.6f));
-    AddBox(FVector(3950.0f, 240.0f, 180.0f), FVector(1.6f, 1.6f, 3.6f));
-    AddBox(FVector(3950.0f, 0.0f, 380.0f), FVector(1.2f, 4.0f, 0.8f));
+    AddBox(FVector(3050.0f, 0.0f, 120.0f), FVector(5.0f, 0.7f, 2.4f));
+    AddBox(FVector(4050.0f, -260.0f, 210.0f), FVector(1.0f, 1.0f, 4.2f));
+    AddBox(FVector(4050.0f, 260.0f, 210.0f), FVector(1.0f, 1.0f, 4.2f));
+    AddBox(FVector(4050.0f, 0.0f, 430.0f), FVector(1.0f, 4.0f, 0.7f));
 
     SpawnCheckpoint(FVector(180.0f, 0.0f, 90.0f), TEXT("L02_Start"));
 
     SpawnInteraction(
-        FVector(500.0f, 0.0f, 80.0f),
-        FText::FromString(TEXT("Survey the road beyond Elaris")),
-        TEXT("BeyondThreshold"), 0, 1,
+        FVector(520.0f, 0.0f, 80.0f),
+        FText::FromString(TEXT("Follow the warning bells")),
+        TEXT("WarningBells"), 0, 1,
         FText::FromString(TEXT("Kael")),
-        FText::FromString(TEXT("No patrol markers. No kingdom banners. From here on, the maps are almost useless.")));
+        FText::FromString(TEXT("Those are not festival bells. The northern alarm is sounding.")));
 
     SpawnInteraction(
-        FVector(1200.0f, 100.0f, 80.0f),
-        FText::FromString(TEXT("Inspect the abandoned caravan")),
-        TEXT("AbandonedCaravan"), 1, 2,
-        FText::FromString(TEXT("Kael")),
-        FText::FromString(TEXT("The tracks are fresh. The Dominion passed this way—and they were moving fast.")));
+        FVector(1100.0f, 80.0f, 80.0f),
+        FText::FromString(TEXT("Guide the civilians toward sanctuary")),
+        TEXT("EvacuateCivilians"), 1, 2,
+        FText::FromString(TEXT("Elaris Citizen")),
+        FText::FromString(TEXT("The market road is blocked. Please—show us another way.")));
 
-    SpawnEncounter(FVector(1750.0f, 0.0f, 40.0f), 2, 3, 3);
-
-    SpawnCheckpoint(FVector(2200.0f, 0.0f, 90.0f), TEXT("L02_AfterScouts"));
-
-    SpawnInteraction(
-        FVector(2650.0f, 0.0f, 100.0f),
-        FText::FromString(TEXT("Examine the glowing rune stone")),
-        TEXT("FirstOuterRune"), 3, 4,
-        FText::FromString(TEXT("The Rune")),
-        FText::FromString(TEXT("The symbol reacts to Gatefire. Someone expected a Gate-blooded traveler to come this way.")));
+    SpawnEncounter(FVector(1650.0f, 0.0f, 40.0f), 2, 3, 3, false);
+    SpawnCheckpoint(FVector(2150.0f, 0.0f, 90.0f), TEXT("L02_AfterFirstAttack"));
 
     SpawnInteraction(
-        FVector(3300.0f, 0.0f, 80.0f),
-        FText::FromString(TEXT("Follow the rune trail")),
-        TEXT("RuneTrail"), 4, 5,
+        FVector(2600.0f, -80.0f, 80.0f),
+        FText::FromString(TEXT("Free the trapped families")),
+        TEXT("SouthernDistrictFamilies"), 3, 4,
         FText::FromString(TEXT("Kael")),
-        FText::FromString(TEXT("The same mark appears again. It is leading deeper into the ruins.")));
+        FText::FromString(TEXT("The street has collapsed, but the alley to the sanctuary is still open.")));
 
-    SpawnEncounter(FVector(3900.0f, 0.0f, 40.0f), 5, 6, 4);
+    SpawnEncounter(FVector(3200.0f, 0.0f, 40.0f), 4, 5, 3, true);
+    SpawnCheckpoint(FVector(3650.0f, 0.0f, 90.0f), TEXT("L02_BlockadeCleared"));
 
-    SpawnCheckpoint(FVector(4300.0f, 0.0f, 90.0f), TEXT("L02_ShatteredShrine"));
+    FActorSpawnParameters TransitionParams;
+    TransitionParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ATFGLevelTransitionActor* Exit = GetWorld()->SpawnActor<ATFGLevelTransitionActor>(
+        ATFGLevelTransitionActor::StaticClass(), FVector(4050.0f, 0.0f, 100.0f), FRotator::ZeroRotator, TransitionParams);
+    if (Exit)
+    {
+        Exit->InteractionId = TEXT("ProtectedDistrictGate");
+        Exit->InteractionPrompt = FText::FromString(TEXT("Secure the protected district"));
+        Exit->QuestId = QuestId;
+        Exit->RequiredQuestStage = 5;
+        Exit->AdvanceQuestToStage = 6;
+        Exit->bCompleteQuest = true;
+        Exit->bOneShot = true;
+        Exit->LevelToComplete = 2;
+        Exit->SpeakerName = FText::FromString(TEXT("Captain Arlen"));
+        Exit->StoryLine = FText::FromString(TEXT("The civilians are inside. The palace is under siege—go. We hold this district."));
+        Exit->RefreshPresentation();
+    }
 }
 
 void ATFGLevelTwoPrototypeWorld::AddBox(const FVector& Location, const FVector& Scale, const FRotator& Rotation)
@@ -133,7 +143,8 @@ ATFGEncounterZone* ATFGLevelTwoPrototypeWorld::SpawnEncounter(
     const FVector& Location,
     int32 RequiredStage,
     int32 AdvanceStage,
-    int32 EnemyCount)
+    int32 EnemyCount,
+    bool bIncludeBrute)
 {
     if (!GetWorld()) return nullptr;
 
@@ -147,9 +158,15 @@ ATFGEncounterZone* ATFGLevelTwoPrototypeWorld::SpawnEncounter(
         Encounter->QuestId = QuestId;
         Encounter->RequiredQuestStage = RequiredStage;
         Encounter->AdvanceQuestToStage = AdvanceStage;
-        for (int32 Index = 0; Index < EnemyCount; ++Index)
+
+        const int32 StandardCount = bIncludeBrute ? FMath::Max(0, EnemyCount - 1) : EnemyCount;
+        for (int32 Index = 0; Index < StandardCount; ++Index)
         {
             Encounter->EnemyClasses.Add(ATFGEnemyCharacter::StaticClass());
+        }
+        if (bIncludeBrute)
+        {
+            Encounter->EnemyClasses.Add(ATFGVeyrBruteEnemy::StaticClass());
         }
     }
 
@@ -165,6 +182,6 @@ void ATFGLevelTwoPrototypeWorld::SpawnCheckpoint(const FVector& Location, FName 
     if (ATFGCheckpointActor* Checkpoint = GetWorld()->SpawnActor<ATFGCheckpointActor>(
         ATFGCheckpointActor::StaticClass(), Location, FRotator::ZeroRotator, Params))
     {
-        Checkpoint->ConfigureCheckpoint(CheckpointId, TEXT("L02_BeyondElaris"), true);
+        Checkpoint->ConfigureCheckpoint(CheckpointId, TEXT("L02_TheSkyTurnsRed"), true);
     }
 }
