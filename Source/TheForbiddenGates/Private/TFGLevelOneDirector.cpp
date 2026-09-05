@@ -1,13 +1,10 @@
 #include "TFGLevelOneDirector.h"
 #include "Blueprint/UserWidget.h"
-#include "Engine/GameInstance.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "TFGCharacterBase.h"
 #include "TFGObjectiveWidget.h"
-#include "TFGProgressionSubsystem.h"
 #include "TFGQuestComponent.h"
-#include "TFGSaveGame.h"
 
 ATFGLevelOneDirector::ATFGLevelOneDirector()
 {
@@ -114,10 +111,10 @@ void ATFGLevelOneDirector::ApplyObjectiveForStage(int32 Stage)
             Objective = FText::FromString(TEXT("Reach the royal palace and find Princess Elyra."));
             break;
         case 6:
-            Objective = FText::FromString(TEXT("Follow the kidnappers beyond the city walls toward the Forbidden Gate."));
+            Objective = FText::FromString(TEXT("Follow the kidnappers toward the Forbidden Gate."));
             break;
         default:
-            Objective = FText::FromString(TEXT("Reach the Forbidden Gate."));
+            Objective = FText::FromString(TEXT("Enter the Forbidden Gate."));
             break;
     }
 
@@ -142,21 +139,7 @@ void ATFGLevelOneDirector::FinishLevelOne()
     if (ObjectiveWidget)
     {
         ObjectiveWidget->SetObjective(
-            FText::FromString(TEXT("LEVEL 1 COMPLETE")),
-            FText::FromString(TEXT("The road beyond Elaris is open.")));
-    }
-
-    if (UGameInstance* GameInstance = GetGameInstance())
-    {
-        if (UTFGProgressionSubsystem* Progression = GameInstance->GetSubsystem<UTFGProgressionSubsystem>())
-        {
-            if (UTFGSaveGame* Save = Progression->GetCurrentSave())
-            {
-                if (!Save->CompletedLevels.Contains(1))
-                {
-                    Progression->CompleteLevel(1);
-                }
-            }
-        }
+            FText::FromString(TEXT("THE FIRST GATE AWAKENS")),
+            FText::FromString(TEXT("Step through the Gate to leave Elaris behind.")));
     }
 }
