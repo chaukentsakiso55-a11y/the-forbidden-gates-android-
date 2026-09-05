@@ -10,21 +10,29 @@
 
 namespace
 {
-    void AddLabelAndBar(UWidgetTree* WidgetTree, UVerticalBox* Root, const TCHAR* LabelName,
-        const FString& LabelText, UTextBlock*& OutLabel, UProgressBar*& OutBar)
+    struct FCombatHUDRow
     {
-        OutLabel = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), LabelName);
-        OutLabel->SetText(FText::FromString(LabelText));
-        OutBar = WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass());
+        UTextBlock* Label = nullptr;
+        UProgressBar* Bar = nullptr;
+    };
 
-        if (UVerticalBoxSlot* LabelSlot = Root->AddChildToVerticalBox(OutLabel))
+    FCombatHUDRow AddLabelAndBar(UWidgetTree* WidgetTree, UVerticalBox* Root, const FName LabelName, const FString& LabelText)
+    {
+        FCombatHUDRow Row;
+        Row.Label = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), LabelName);
+        Row.Label->SetText(FText::FromString(LabelText));
+        Row.Bar = WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass());
+
+        if (UVerticalBoxSlot* LabelSlot = Root->AddChildToVerticalBox(Row.Label))
         {
             LabelSlot->SetPadding(FMargin(16.0f, 4.0f, 16.0f, 2.0f));
         }
-        if (UVerticalBoxSlot* BarSlot = Root->AddChildToVerticalBox(OutBar))
+        if (UVerticalBoxSlot* BarSlot = Root->AddChildToVerticalBox(Row.Bar))
         {
             BarSlot->SetPadding(FMargin(16.0f, 0.0f, 16.0f, 4.0f));
         }
+
+        return Row;
     }
 }
 
@@ -44,9 +52,17 @@ void UTFGCombatHUDWidget::NativeConstruct()
         UVerticalBox* Root = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("CombatHUDRoot"));
         WidgetTree->RootWidget = Root;
 
-        AddLabelAndBar(WidgetTree, Root, TEXT("HealthText"), TEXT("HEALTH"), HealthText, HealthBar);
-        AddLabelAndBar(WidgetTree, Root, TEXT("ManaText"), TEXT("MANA"), ManaText, ManaBar);
-        AddLabelAndBar(WidgetTree, Root, TEXT("StaminaText"), TEXT("STAMINA"), StaminaText, StaminaBar);
+        const FCombatHUDRow HealthRow = AddLabelAndBar(WidgetTree, Root, TEXT("HealthText"), TEXT("HEALTH"));
+        HealthText = HealthRow.Label;
+        HealthBar = HealthRow.Bar;
+
+        const FCombatHUDRow ManaRow = AddLabelAndBar(WidgetTree, Root, TEXT("ManaText"), TEXT("MANA"));
+        ManaText = ManaRow.Label;
+        ManaBar = ManaRow.Bar;
+
+        const FCombatHUDRow StaminaRow = AddLabelAndBar(WidgetTree, Root, TEXT("StaminaText"), TEXT("STAMINA"));
+        StaminaText = StaminaRow.Label;
+        StaminaBar = StaminaRow.Bar;
     }
 
     BindToAttributes();
