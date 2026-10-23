@@ -1,0 +1,32 @@
+name: Android Shipping Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/android-shipping-readiness.yml'
+      - 'TheForbiddenGatesAndroid.uproject'
+      - 'Config/**'
+      - 'Source/**'
+      - 'Content/**'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Unreal project and required content
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f TheForbiddenGatesAndroid.uproject
+          test -f Source/TheForbiddenGatesAndroid.Target.cs
+          test -f Source/TheForbiddenGates/TheForbiddenGates.Build.cs
+          if ! find Content -type f \( -name '*.umap' -o -name '*.uasset' \) -print -quit 2>/dev/null | grep -q .; then
+            echo "::error::Missing Unreal Content assets/maps. A complete game APK cannot be packaged from source alone."
+            exit 1
+          fi
+          echo "Project source and content detected. Shipping packaging still requires a configured Unreal Windows runner."
